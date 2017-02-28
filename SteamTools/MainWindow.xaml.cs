@@ -302,7 +302,7 @@ namespace SteamTools
                     pageBuilder.AppendLine("<img src=\"" + usr.Logo + "\" style=\"width:32px;height:32px\" title=\"" + usr.Name + "\"/>");
                 }
                 pageBuilder.AppendLine("</li>");
-            }
+            } 
             pageBuilder.AppendLine("</ul>");
             pageBuilder.AppendLine("</div>");
             pageBuilder.AppendLine("</body>");
