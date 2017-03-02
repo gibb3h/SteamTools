@@ -42,6 +42,7 @@ namespace SteamTools
         {
             Settings.Default.groupUrl = GroupUrl.Text;
             Settings.Default.Save();
+            WriteData();
             base.OnClosing(e);
         }
 
@@ -189,7 +190,8 @@ namespace SteamTools
 
         private async void GetTags()
         {
-            var allGameIds = Users.SelectMany(x => x.Games.Where(d => d.Tags.Count.Equals(0) && d.ExistsInStore)).Select(f => f.AppId).Distinct().ToList();
+            var allGameIds = Users.SelectMany(x => x.Games.Where(d => d.Tags.Count.Equals(0))).Select(f => f.AppId).Distinct().ToList();
+//            var allGameIds = Users.SelectMany(x => x.Games.Where(d => d.Tags.Count.Equals(0) && d.ExistsInStore)).Select(f => f.AppId).Distinct().ToList();
             allGameIds.Sort();
             Progress.Visibility = System.Windows.Visibility.Visible;
             Progress.Maximum = allGameIds.Count;
@@ -200,16 +202,25 @@ namespace SteamTools
                 foreach (var appId in allGameIds)
                 {
                     maxThread.Wait();
-                    if (AllGames.Any(g => g.AppId.Equals(appId)))
+                    if (AllGames.Any(g => g.AppId.Equals(appId)) && AllGames.First(g => g.AppId.Equals(appId)).Tags.Count > 0)
                     {
                         UpdateUserGame(appId, AllGames.First(g => g.AppId.Equals(appId)).Tags);
+                        maxThread.Release();
                     }
                     else
                     {
                         await GetTags("http://store.steampowered.com/app/" + appId).ContinueWith(task =>
                         {
-                            maxThread.Release();
-                            UpdateUserGame(appId, task.Result);
+                            if (task.IsFaulted)
+                            {
+                                Exception ex = task.Exception;
+                                while (ex is AggregateException && ex.InnerException != null)
+                                    ex = ex.InnerException;
+                                MessageBox.Show(ex.Message);
+                            } else { 
+                                maxThread.Release();
+                                UpdateUserGame(appId, task.Result);
+                            }
                         }, uiContext);
                     }
                 }
@@ -253,17 +264,14 @@ namespace SteamTools
             var gameName = "";
             foreach (var game in Users.SelectMany(user => user.Games.Where(game => game.AppId.Equals(appId))))
             {
-                if (tags.Count.Equals(0))
-                {
-                    game.ExistsInStore = false;
-                }
+                game.ExistsInStore = !tags.Count.Equals(0);
                 game.Tags = tags;
                 gameName = game.Name;
             }
 
             if (!tags.Count.Equals(0))
             {
-                Label.Content = "Updating " + gameName;
+                Label.Content = "Updating " + gameName;            
                 ShowStats();
             }
 
