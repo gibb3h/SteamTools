@@ -47,7 +47,8 @@ namespace SteamTools
 
         public static string ReplaceWhitespace(string input, string replacement)
         {
-            return SWhitespace.Replace(input, replacement);
+            //SWhitespace.Replace(input, replacement);
+            return Regex.Replace(input, @"(?<=^\s*)\s|\s(?=\s*$)", "");
         }
 
         private void button_Click(object sender, RoutedEventArgs e)
