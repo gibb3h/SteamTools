@@ -129,6 +129,8 @@
     <Compile Include="changeLog.xaml.cs">
       <DependentUpon>changeLog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="DataAccess.cs" />
+    <Compile Include="Renderer.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="User.cs" />
     <Page Include="changeLog.xaml">
