@@ -15,6 +15,7 @@ using System.Text;
 using System.Reflection;
 using SteamTools.Properties;
 using System.Diagnostics;
+using System.Net;
 
 namespace SteamTools
 {
@@ -38,7 +39,6 @@ namespace SteamTools
             InitializeComponent();
             GetData();
             GroupUrl.Text = Settings.Default.groupUrl ?? string.Empty;
-            Update();
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -72,26 +72,25 @@ namespace SteamTools
                     var request = await http.GetAsync(GroupUrl.Text);
                     var response = await request.Content.ReadAsStreamAsync();
                     var document = parser.Parse(response);
-                    var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
-                    var downloadTasksQuery =
-                            from usr in document.QuerySelectorAll(".member_block")
-                            select GetUsers(usr).ContinueWith(t =>
-                            {
-                                if (!Users.Any(u => u.Name.Equals(t.Result.Name)))
-                                {
-                                    Users.Add(t.Result);
-                                    ShowStats();
-                                }
-                                else
-                                {
-                                    foreach (var user in Users.Where(u => u.Name.Equals(t.Result.Name)))
-                                    {
-                                        user.Games = t.Result.Games;
-                                        user.PrivateProfile = t.Result.PrivateProfile;
-                                    }
-                                }
-                            }, uiContext);
-                    await Task.WhenAll(downloadTasksQuery);
+ 
+                    IList<IElement> users = document.QuerySelectorAll(".member_block").ToList(); ;
+
+                    buildUserTasks(users);
+
+                    if (document.QuerySelectorAll(".pageLinks").Any())
+                    {
+                        var lastPage = int.Parse(document.QuerySelector(".pageLinks").Children.Where(c => c.ClassName.Equals("pagelink")).Last().TextContent, System.Globalization.NumberStyles.AllowThousands);
+                        for (int i = 2; i <= lastPage; i++)
+                        {
+                            using (var membersRequest = await http.GetAsync(GroupUrl.Text + "/?p=" + i))
+                            using (var membersResponse = await membersRequest.Content.ReadAsStreamAsync())
+                            using (var membersDocument = parser.Parse(membersResponse))
+                                users = membersDocument.QuerySelectorAll(".member_block").ToList();
+
+                            buildUserTasks(users);
+                        }
+                    }
+
                     GetTags();
                 }
                 catch (Exception ex)
@@ -105,6 +104,30 @@ namespace SteamTools
             }
         }
 
+
+        public async void buildUserTasks(IList<IElement> users)
+        {
+            var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
+            var downloadTasksQuery =
+                          from usr in users
+                          select GetUsers(usr).ContinueWith(t =>
+                          {
+                              if (!Users.Any(u => u.Name.Equals(t.Result.Name)))
+                              {
+                                  Users.Add(t.Result);
+                                  ShowStats();
+                              }
+                              else
+                              {
+                                  foreach (var user in Users.Where(u => u.Name.Equals(t.Result.Name)))
+                                  {
+                                      user.Games = t.Result.Games;
+                                      user.PrivateProfile = t.Result.PrivateProfile;
+                                  }
+                              }
+                          }, uiContext);
+            await Task.WhenAll(downloadTasksQuery);
+        }
         public async Task<User> GetUsers(IElement usr)
         {
             var user = Users.Where(u => u.Name.Equals(usr.QuerySelector(".linkFriend").TextContent)).DefaultIfEmpty(new User()).First();
@@ -113,6 +136,11 @@ namespace SteamTools
             user.ProfileUrl = usr.QuerySelector(".playerAvatar a").GetAttribute("href");
             var http = new HttpClient();
             var request = await http.GetAsync(user.ProfileUrl + "/games?tab=all");
+            if (request.StatusCode.Equals((HttpStatusCode)429))
+            {
+                MessageBox.Show("Steam has stop accepting requests, you will have to wait a while!");
+                Application.Current.Shutdown();
+            }
             if (request.IsSuccessStatusCode)
             {
                 var response = await request.Content.ReadAsStreamAsync();
@@ -275,8 +303,9 @@ namespace SteamTools
         {
             var jsonName = _groupUri.Segments[2].Replace("/", "") + ".json";
             File.WriteAllText(jsonName, JsonConvert.SerializeObject(Users));
-            AllGames = Users.SelectMany(u => u.Games).GroupBy(g => g.AppId).Select(g => g.First()).ToList();
-            File.WriteAllText("cachedGames.json", JsonConvert.SerializeObject(AllGames));
+            var newGames = Users.SelectMany(u => u.Games).GroupBy(g => g.AppId).Select(g => g.First()).ToList();
+            var uniqueList = AllGames.Concat(newGames).GroupBy(item => item.AppId).Select(group => group.First()).ToList();
+            File.WriteAllText("cachedGames.json", JsonConvert.SerializeObject(uniqueList));
         }
 
         private void UpdateUserGame(int appId, List<string> tags)
@@ -338,7 +367,7 @@ namespace SteamTools
             pageBuilder.AppendLine("</html>");
             var htmlPath = Directory.GetParent(Assembly.GetExecutingAssembly().Location) + "\\gameComp.html";
             File.WriteAllText(htmlPath, pageBuilder.ToString());
-            System.Diagnostics.Process.Start(htmlPath);
+            Process.Start(htmlPath);
         }
 
         private void GetData()

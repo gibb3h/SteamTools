@@ -31,7 +31,7 @@
     <UpdateUrl>https://raw.githubusercontent.com/gibb3h/SteamTools/master/Publish/</UpdateUrl>
     <ProductName>SteamTools</ProductName>
     <PublisherName>Gibsoft</PublisherName>
-    <ApplicationRevision>6</ApplicationRevision>
+    <ApplicationRevision>9</ApplicationRevision>
     <ApplicationVersion>0.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
