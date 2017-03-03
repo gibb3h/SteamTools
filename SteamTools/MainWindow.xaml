@@ -7,9 +7,11 @@
         xmlns:properties="clr-namespace:SteamTools.Properties"
         xmlns:diagnostics="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         mc:Ignorable="d"
-        Title="SteamTools" Height="377.698" Width="525"
+        Title="SteamTools" Height="403.12" Width="566.765"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
+
     <DockPanel>
+
         <StatusBar DockPanel.Dock="Bottom">
             <Label x:Name="Label" Content="" Width="250"/>
             <ProgressBar Name="Progress" Height="15" Width="250" Visibility="Hidden"/>
@@ -20,11 +22,16 @@
                 <ColumnDefinition Width="259*"/>
             </Grid.ColumnDefinitions>
             <TextBox x:Name="GroupUrl" HorizontalAlignment="Left" Height="20" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="426" Grid.ColumnSpan="2" LostFocus="GroupUrl_LostFocus" />
-            <Button x:Name="Button" Content="Process" HorizontalAlignment="Left" Height="20" Margin="183,10,0,0" VerticalAlignment="Top" Width="66" Click="button_Click" Grid.Column="1"/>
+            <Button x:Name="Button" Content="Process" HorizontalAlignment="Left" Height="20" Margin="162,10,0,0" VerticalAlignment="Top" Width="66" Click="button_Click" Grid.Column="1"/>
             <Label x:Name="PlayerStats" Content="" HorizontalAlignment="Left" Height="30" Margin="10,35,0,0" VerticalAlignment="Top" Width="426" Grid.ColumnSpan="2"/>
             <Label x:Name="GameStats" Content="" HorizontalAlignment="Left" Height="30" Margin="10,70,0,0" VerticalAlignment="Top" Width="426" Grid.ColumnSpan="2"/>
             <Label x:Name="TagsStats" Content="" HorizontalAlignment="Left" Height="30" Margin="10,105,0,0" VerticalAlignment="Top" Width="426" Grid.ColumnSpan="2"/>
-            <Button x:Name="Render" Content="Render Game Comparison" Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="99,283,0,0" VerticalAlignment="Top" Width="150" Click="processGameComp_Click"/>
+            <Button x:Name="Render" Content="Render Game Comparison" Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="120,308,0,0" VerticalAlignment="Top" Width="150" Click="processGameComp_Click"/>
+            <Button x:Name="showFolder" HorizontalAlignment="Left" Margin="10,286,0,0" VerticalAlignment="Top" Width="44" RenderTransformOrigin="0.07,0.475" Height="45" ToolTip="Open Data Directory" Click="showFolder_Click">
+                <StackPanel>
+                    <Image Source="pack://application:,,,/Resources/folder.png" Margin="2,2,2,2" />
+                </StackPanel>
+            </Button>
         </Grid>
     </DockPanel>
 </Window>

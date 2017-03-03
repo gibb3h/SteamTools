@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Text;
 using System.Reflection;
 using SteamTools.Properties;
+using System.Diagnostics;
 
 namespace SteamTools
 {
@@ -29,6 +30,8 @@ namespace SteamTools
         private static readonly Regex SWhitespace = new Regex(@"\s+");
         private static readonly Regex UrlMatch = new Regex(@"^((http:\/\/steamcommunity\.com\/groups\/)[a-zA-Z]+(\/)[a-zA-Z]+)$");
         private Uri _groupUri;
+
+        private static readonly string installedDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         public MainWindow()
         {
@@ -79,6 +82,14 @@ namespace SteamTools
                                     Users.Add(t.Result);
                                     ShowStats();
                                 }
+                                else
+                                {
+                                    foreach (var user in Users.Where(u => u.Name.Equals(t.Result.Name)))
+                                    {
+                                        user.Games = t.Result.Games;
+                                        user.PrivateProfile = t.Result.PrivateProfile;
+                                    }
+                                }
                             }, uiContext);
                     await Task.WhenAll(downloadTasksQuery);
                     GetTags();
@@ -110,6 +121,7 @@ namespace SteamTools
                     var games = GetGames(response);
                     user.Games.AddRange(games.Where(x => user.Games.All(y => y.AppId != x.AppId)));
                     user.Games = user.Games.OrderBy(x => x.Name).ToList();
+                    user.PrivateProfile = false;
                 }
                 catch (Exception ex)
                 {
@@ -217,10 +229,10 @@ namespace SteamTools
                                 while (ex is AggregateException && ex.InnerException != null)
                                     ex = ex.InnerException;
                                 MessageBox.Show(ex.Message);
-                            } else { 
-                                maxThread.Release();
+                            } else {                             
                                 UpdateUserGame(appId, task.Result);
                             }
+                            maxThread.Release();
                         }, uiContext);
                     }
                 }
@@ -355,6 +367,11 @@ namespace SteamTools
                 Settings.Default.groupUrl = GroupUrl.Text;
                 GetData();
             }
+        }
+
+        private void showFolder_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(@installedDir);
         }
     }   
 }
