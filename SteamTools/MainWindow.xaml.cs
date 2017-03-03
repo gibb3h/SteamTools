@@ -178,19 +178,27 @@ namespace SteamTools
             var tags = new List<string>();
 
             try
-            {
-               
+            { 
                 var handler = new HttpClientHandler { UseCookies = false };
                 using (var http = new HttpClient(handler))
                 {
-                    var message = new HttpRequestMessage(HttpMethod.Get, url);
-                    message.Headers.Add("Cookie", "birthtime=504921601; lastagecheckage=1-January-1986");
-                    var result = await http.SendAsync(message);
-                    result.EnsureSuccessStatusCode();
-                    var parser = new HtmlParser();
-                    var response = await result.Content.ReadAsStreamAsync();
-                    var document = parser.Parse(response);
-                    tags.AddRange(document.QuerySelectorAll(".app_tag").Where(t => t.TextContent.Replace(" ", "") != "+").Select(ele => ReplaceWhitespace(ele.TextContent, "")));
+                    var headMsg = new HttpRequestMessage(HttpMethod.Head, url);
+                    headMsg.Headers.Add("Cookie", "birthtime=504921601; lastagecheckage=1-January-1986");
+                    var headResult = await http.SendAsync(headMsg);
+                    if (!headResult.RequestMessage.RequestUri.Equals("http://store.steampowered.com/") && !headResult.RequestMessage.RequestUri.Host.Equals("steamcommunity.com"))
+                    {
+                        var message = new HttpRequestMessage(HttpMethod.Get, url);
+                        message.Headers.Add("Cookie", "birthtime=504921601; lastagecheckage=1-January-1986");
+                        var result = await http.SendAsync(message);
+                        result.EnsureSuccessStatusCode();
+                        var parser = new HtmlParser();
+                        var response = await result.Content.ReadAsStreamAsync();
+                        var document = parser.Parse(response);
+
+                        tags.AddRange(document.QuerySelectorAll(".app_tag").Where(t => t.TextContent.Replace(" ", "") != "+").Select(ele => ReplaceWhitespace(ele.TextContent, "")));
+                        if (tags.Count == 0)
+                            tags.Add("No tags");
+                    }
                 }
             }
             catch (Exception e)
