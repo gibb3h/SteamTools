@@ -37,11 +37,17 @@ namespace SteamTools
 
         public MainWindow()
         {
-            if (System.Deployment.Application.ApplicationDeployment.CurrentDeployment.IsFirstRun)
+            try
             {
-                new changeLog().Show();
+                if (System.Deployment.Application.ApplicationDeployment.CurrentDeployment.IsFirstRun)
+                {
+                    new changeLog().Show();
+                }
             }
-               
+            catch (Exception e)
+            {
+                // not installed
+            }
 
             InitializeComponent();
             GetData();
@@ -84,7 +90,7 @@ namespace SteamTools
 
                     buildUserTasks(users);
 
-                    if (document.QuerySelectorAll(".pageLinks").Any())
+                    if (document.QuerySelectorAll(".pagelink").Any())
                     {
                         var lastPage = int.Parse(document.QuerySelector(".pageLinks").Children.Where(c => c.ClassName.Equals("pagelink")).Last().TextContent, System.Globalization.NumberStyles.AllowThousands);
                         for (int i = 2; i <= lastPage; i++)
