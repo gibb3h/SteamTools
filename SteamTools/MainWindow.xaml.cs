@@ -16,6 +16,7 @@ using System.Reflection;
 using SteamTools.Properties;
 using System.Diagnostics;
 using System.Net;
+using System.Deployment;
 
 namespace SteamTools
 {
@@ -36,6 +37,12 @@ namespace SteamTools
 
         public MainWindow()
         {
+            if (System.Deployment.Application.ApplicationDeployment.CurrentDeployment.IsFirstRun)
+            {
+                new changeLog().Show();
+            }
+               
+
             InitializeComponent();
             GetData();
             GroupUrl.Text = Settings.Default.groupUrl ?? string.Empty;
