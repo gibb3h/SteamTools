@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -23,19 +24,33 @@ namespace SteamTools
             pageBuilder.AppendLine("<div id=\"placeHolder\"></div><ul id=\"container\">");
 
             var allIds = users.SelectMany(u => u.Games).GroupBy(g => g).Select(g => g.First()).ToList();
-            allIds.Sort();
+            var userGames = allGames.Where(g => allIds.Contains(g.AppId)).ToList();
 
-            foreach (var id in allIds)
+            userGames.Sort(delegate(Game g1, Game g2)
             {
-                var gameUsers = users.Where(u => u.Games.Any(g => g.Equals(id))).ToList();
-                var gameObj = allGames.First(g => g.AppId.Equals(id));
-                pageBuilder.AppendLine("<li style=\"list-style:none\" data-tags=\"" + string.Join(", ", gameObj.Tags) + "\" data-user=\"" + string.Join(", ", gameUsers.Select(u => u.Name).ToList()) + "\">");
-                pageBuilder.AppendLine("<img src=\"" + gameObj.Logo + "\" title=\"" + gameObj.Name + "\"/>");
-                foreach (var usr in gameUsers)
+                var g1Count = users.Count(u => u.Games.Contains(g1.AppId));
+                var g2Count = users.Count(u => u.Games.Contains(g2.AppId));
+
+                return g2Count.CompareTo(g1Count);
+            });
+
+            foreach (var id in userGames)
+            {
+                var gameUsers = users.Where(u => u.Games.Any(g => g.Equals(id.AppId))).ToList();
+                if (allGames.Any(g => g.AppId.Equals(id.AppId)))
                 {
-                    pageBuilder.AppendLine("<img src=\"" + usr.Logo + "\" style=\"width:32px;height:32px\" title=\"" + usr.Name + "\"/>");
+                    var gameObj = allGames.First(g => g.AppId.Equals(id.AppId));
+                    pageBuilder.AppendLine("<li style=\"list-style:none\" data-tags=\"" +
+                                           string.Join(", ", gameObj.Tags) + "\" data-user=\"" +
+                                           string.Join(", ", gameUsers.Select(u => u.Name).ToList()) + "\">");
+                    pageBuilder.AppendLine("<img src=\"" + gameObj.Logo + "\" title=\"" + gameObj.Name + "\"/>");
+                    foreach (var usr in gameUsers)
+                    {
+                        pageBuilder.AppendLine("<img src=\"" + usr.Logo + "\" style=\"width:32px;height:32px\" title=\"" +
+                                               usr.Name + "\"/>");
+                    }
+                    pageBuilder.AppendLine("</li>");
                 }
-                pageBuilder.AppendLine("</li>");
             }
             pageBuilder.AppendLine("</ul>");
             pageBuilder.AppendLine("</div>");
