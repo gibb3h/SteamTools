@@ -10,7 +10,7 @@ namespace SteamTools
     class Renderer
     {
 
-        public static void Render(List<User> Users)
+        public static void Render(List<User> users, List<Game> allGames)
         {
             var pageBuilder = new StringBuilder();
 
@@ -22,21 +22,15 @@ namespace SteamTools
             pageBuilder.AppendLine("<style>.background {background-color: #2F2727;}#container li {background-color: #9A9C98;margin:5px;padding:10px;-webkit-border-radius: 10px;-moz-border-radius: 10px;border-radius: 10px;-webkit-box-shadow: inset 0px 0px 10px 5px rgba(92,92,92,1);-moz-box-shadow: inset 0px 0px 10px 5px rgba(92,92,92,1);box-shadow: inset 0px 0px 10px 5px rgba(92,92,92,1);}#container li img{margin:5px;-webkit-border-radius: 5px;-moz-border-radius: 5px;border-radius: 5px;-webkit-box-shadow: 2px 2px 2px 1px rgba(92,92,92,1);-moz-box-shadow: 2px 2px 2px 1px rgba(92,92,92,1);box-shadow: 2px 2px 2px 1px rgba(92,92,92,1);}#placeHolder {-webkit-box-shadow: inset 0px 0px 10px 5px rgba(92,92,92,1);-moz-box-shadow: inset 0px 0px 10px 5px rgba(92,92,92,1);box-shadow: inset 0px 0px 10px 5px rgba(92,92,92,1);background-color: #9A9C98; padding:10px; -webkit-border-radius: 10px; -moz-border-radius: 10px; border-radius: 10px;}</style>  </head>  <body class=\"background\">    <div style=\"padding-left:50px; padding-top:50px; margin-right:auto; margin-left:auto; width:50%;\">");
             pageBuilder.AppendLine("<div id=\"placeHolder\"></div><ul id=\"container\">");
 
-            var allGames = Users.SelectMany(u => u.Games).GroupBy(g => g.AppId).Select(g => g.First()).ToList();
-            allGames.Sort(delegate (Game g1, Game g2)
+            var allIds = users.SelectMany(u => u.Games).GroupBy(g => g).Select(g => g.First()).ToList();
+            allIds.Sort();
+
+            foreach (var id in allIds)
             {
-                var g1Count = Users.Where(u => u.Games.Any(g => g.AppId.Equals(g1.AppId))).Count();
-                var g2Count = Users.Where(u => u.Games.Any(g => g.AppId.Equals(g2.AppId))).Count();
-
-                return g2Count.CompareTo(g1Count);
-            });
-
-            foreach (var game in allGames)
-            {
-                var gameUsers = Users.Where(u => u.Games.Any(g => g.AppId.Equals(game.AppId))).ToList();
-
-                pageBuilder.AppendLine("<li style=\"list-style:none\" data-tags=\"" + string.Join(", ", game.Tags) + "\" data-user=\"" + string.Join(", ", gameUsers.Select(u => u.Name).ToList()) + "\">");
-                pageBuilder.AppendLine("<img src=\"" + game.Logo + "\" title=\"" + game.Name + "\"/>");
+                var gameUsers = users.Where(u => u.Games.Any(g => g.Equals(id))).ToList();
+                var gameObj = allGames.First(g => g.AppId.Equals(id));
+                pageBuilder.AppendLine("<li style=\"list-style:none\" data-tags=\"" + string.Join(", ", gameObj.Tags) + "\" data-user=\"" + string.Join(", ", gameUsers.Select(u => u.Name).ToList()) + "\">");
+                pageBuilder.AppendLine("<img src=\"" + gameObj.Logo + "\" title=\"" + gameObj.Name + "\"/>");
                 foreach (var usr in gameUsers)
                 {
                     pageBuilder.AppendLine("<img src=\"" + usr.Logo + "\" style=\"width:32px;height:32px\" title=\"" + usr.Name + "\"/>");

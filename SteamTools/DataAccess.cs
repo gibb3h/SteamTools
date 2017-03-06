@@ -9,43 +9,37 @@ namespace SteamTools
 {
     class DataAccess
     {
-        public List<User> getCachedUsers(string groupUrl)
+        public List<User> GetCachedUsers(string groupUrl)
         {
-            var Users = new List<User>();
+            var users = new List<User>();
             if (!string.IsNullOrEmpty(groupUrl))
             {
-                var _groupUri = new Uri(groupUrl);
-                if (File.Exists(_groupUri.Segments[2].Replace("/", "") + ".json"))
-                    Users = JsonConvert.DeserializeObject<ObservableCollection<User>>(File.ReadAllText(_groupUri.Segments[2].Replace("/", "") + ".json")).ToList();
+                var groupUri = new Uri(groupUrl);
+                if (File.Exists(groupUri.Segments[2].Replace("/", "") + ".json"))
+                    users = JsonConvert.DeserializeObject<ObservableCollection<User>>(File.ReadAllText(groupUri.Segments[2].Replace("/", "") + ".json")).ToList();
             }
 
-            return Users;
+            return users;
         }
 
-        public List<Game> getCachedGames()
+        public List<Game> GetCachedGames()
         {
            return File.Exists("cachedGames.json") ? JsonConvert.DeserializeObject<List<Game>>(File.ReadAllText("cachedGames.json")) : new List<Game>();
         }
 
-        public void writeCachedUsers(string groupUrl, List<User> Users)
+        public void WriteCachedUsers(string groupUrl, List<User> users)
         {
             if (!string.IsNullOrEmpty(groupUrl))
             {
-                var _groupUri = new Uri(groupUrl);
-                var jsonName = _groupUri.Segments[2].Replace("/", "") + ".json";
-                File.WriteAllText(jsonName, JsonConvert.SerializeObject(Users));
+                var groupUri = new Uri(groupUrl);
+                var jsonName = groupUri.Segments[2].Replace("/", "") + ".json";
+                File.WriteAllText(jsonName, JsonConvert.SerializeObject(users));
             }
         }
 
-        public void writeCachedGames(List<User> users, List<Game> allGames)
+        public void WriteCachedGames(List<Game> allGames)
         {
-            if (users.Count > 0)
-            {
-                var newGames = users.SelectMany(u => u.Games).GroupBy(g => g.AppId).Select(g => g.First()).ToList();
-                var uniqueList = allGames.Concat(newGames).GroupBy(item => item.AppId).Select(group => group.First()).ToList();
-                if (uniqueList.Count > allGames.Count)
-                    File.WriteAllText("cachedGames.json", JsonConvert.SerializeObject(uniqueList));
-            }
+            File.WriteAllText("cachedGames.json", JsonConvert.SerializeObject(allGames));
         }
     }
 }
