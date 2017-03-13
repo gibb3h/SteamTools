@@ -108,6 +108,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -130,10 +131,17 @@
       <DependentUpon>changeLog.xaml</DependentUpon>
     </Compile>
     <Compile Include="DataAccess.cs" />
+    <Compile Include="gameUpdate.xaml.cs">
+      <DependentUpon>gameUpdate.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Renderer.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="User.cs" />
     <Page Include="changeLog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="gameUpdate.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

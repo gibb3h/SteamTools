@@ -32,6 +32,7 @@
                     <Image Source="pack://application:,,,/Resources/folder.png" Margin="2,2,2,2" />
                 </StackPanel>
             </Button>
+            <Button Name="UpdateCache" Content="Refresh Game Cache" HorizontalAlignment="Left" Height="23" Margin="267,308,0,0" VerticalAlignment="Top" Width="127" Visibility="Hidden" Click="RefreshGameCache_Click" Grid.ColumnSpan="2"/>
         </Grid>
     </DockPanel>
 </Window>
