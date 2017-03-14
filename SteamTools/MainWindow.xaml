@@ -26,6 +26,7 @@
             <Label x:Name="PlayerStats" Content="" HorizontalAlignment="Left" Height="30" Margin="10,35,0,0" VerticalAlignment="Top" Width="426" Grid.ColumnSpan="2"/>
             <Label x:Name="GameStats" Content="" HorizontalAlignment="Left" Height="30" Margin="10,70,0,0" VerticalAlignment="Top" Width="426" Grid.ColumnSpan="2"/>
             <Label x:Name="TagsStats" Content="" HorizontalAlignment="Left" Height="30" Margin="10,105,0,0" VerticalAlignment="Top" Width="426" Grid.ColumnSpan="2"/>
+            <Label x:Name="ScreenStats" Content="" HorizontalAlignment="Left" Height="30" Margin="10,140,0,0" VerticalAlignment="Top" Width="426" Grid.ColumnSpan="2"/>
             <Button x:Name="Render" Content="Render Game Comparison" Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="120,308,0,0" VerticalAlignment="Top" Width="150" Click="processGameComp_Click"/>
             <Button x:Name="showFolder" HorizontalAlignment="Left" Margin="10,286,0,0" VerticalAlignment="Top" Width="44" RenderTransformOrigin="0.07,0.475" Height="45" ToolTip="Open Data Directory" Click="showFolder_Click">
                 <StackPanel>
@@ -33,6 +34,7 @@
                 </StackPanel>
             </Button>
             <Button Name="UpdateCache" Content="Refresh Game Cache" HorizontalAlignment="Left" Height="23" Margin="267,308,0,0" VerticalAlignment="Top" Width="127" Visibility="Hidden" Click="RefreshGameCache_Click" Grid.ColumnSpan="2"/>
+            
         </Grid>
     </DockPanel>
 </Window>

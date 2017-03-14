@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Media;
 using AngleSharp.Parser.Html;
 using Newtonsoft.Json;
@@ -19,11 +17,9 @@ namespace SteamTools
     /// </summary>
     public partial class GameUpdate : Window
     {
-
-        private const string ApiUrl = "http://api.steampowered.com/ISteamApps/GetAppList/v0002/";
         private List<Game> _currentCache;
-        private readonly DataAccess dataAccess = new DataAccess();
-        private List<apiGame> allApps = new List<apiGame>();
+        private readonly DataAccess _dataAccess = new DataAccess();
+        private List<apiGame> _allApps = new List<apiGame>();
 
         public GameUpdate(List<Game> allGames)
         {
@@ -34,16 +30,24 @@ namespace SteamTools
 
         private void GetLatestGames()
         {
-            var http = new HttpClient();
-            var request =  http.GetAsync(ApiUrl).Result;
-            var response =  request.Content.ReadAsStringAsync().Result;        
-            var allAppsContainer = JsonConvert.DeserializeObject<apiMain>(response);
-            allApps = allAppsContainer.applist.apps;
+            try
+            {
+                var http = new HttpClient();
+                var request = http.GetAsync(Consts.ApiUrl).Result;
+                var response = request.Content.ReadAsStringAsync().Result;
+
+                var allAppsContainer = JsonConvert.DeserializeObject<apiMain>(response);
+                _allApps = allAppsContainer.applist.apps;
+            }
+            catch (Exception e)
+            {
+                
+            }
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            dataAccess.WriteCachedGames(_currentCache);
+            _dataAccess.WriteCachedGames(_currentCache);
             base.OnClosing(e);
         }
 
@@ -52,11 +56,11 @@ namespace SteamTools
             var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
             var stopTasks = false;
             GameCacheProgress.Value = _currentCache.Count;
-            GameCacheProgress.Maximum = allApps.Count;
+            GameCacheProgress.Maximum = _allApps.Count;
             var i = GameCacheProgress.Value;
             foreach (
                 var curr in
-                    allApps.Where(curr => !stopTasks).Where(curr => !_currentCache.Any(g => g.AppId.Equals(curr.appid)))
+                    _allApps.Where(curr => !stopTasks).Where(curr => !_currentCache.Any(g => g.AppId.Equals(curr.appid)))
                 )
             {
                 i++;
@@ -78,16 +82,16 @@ namespace SteamTools
                                     stopTasks = true;                              
                             }                      
                         }
-                        ProgressText.Text = i + " of " + allApps.Count;
+                        ProgressText.Text = i + " of " + _allApps.Count;
                     }, uiContext);
             }
 
 
-            dataAccess.WriteCachedGames(_currentCache);
+            _dataAccess.WriteCachedGames(_currentCache);
 
             var result =
                 MessageBox.Show(
-                    _currentCache.Count.Equals(allApps.Count)
+                    _currentCache.Count.Equals(_allApps.Count)
                         ? "processing complete!"
                         : "processing did not complete, please try again", "Results", MessageBoxButton.OK);
             if (result == MessageBoxResult.OK)
@@ -112,7 +116,7 @@ namespace SteamTools
                 {
                     var headMsg = new HttpRequestMessage(HttpMethod.Head,
                                                          "http://store.steampowered.com/app/" + newGame.AppId);
-                    headMsg.Headers.Add("Cookie", "birthtime=504921601; lastagecheckage=1-January-1986; mature_content=1");
+                    headMsg.Headers.Add("Cookie", Consts.MatureCookies);
                     var headResult = await http.SendAsync(headMsg);
                     if (
                         !headResult.RequestMessage.RequestUri.OriginalString.Equals("http://store.steampowered.com/") &&
@@ -128,7 +132,7 @@ namespace SteamTools
                             var message = new HttpRequestMessage(HttpMethod.Get,
                                                                  "http://store.steampowered.com/app/" + newGame.AppId);
                             message.Headers.Add("Cookie",
-                                                "birthtime=504921601; lastagecheckage=1-January-1986; mature_content=1");
+                                                Consts.MatureCookies);
                             var result = await http.SendAsync(message);
                             result.EnsureSuccessStatusCode();
                             var parser = new HtmlParser();
@@ -174,7 +178,7 @@ namespace SteamTools
 
         public bool UpdatesAvailable()
         {
-            return allApps.Count > _currentCache.Count;
+            return _allApps.Count > _currentCache.Count;
         }
 
         internal class apiGame

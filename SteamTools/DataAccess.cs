@@ -41,5 +41,25 @@ namespace SteamTools
         {
             File.WriteAllText("cachedGames.json", JsonConvert.SerializeObject(allGames));
         }
+
+        public List<ScreenShot> GetScreenShots(string user)
+        {
+            var shots = new List<ScreenShot>();
+            var file = new FileInfo(Consts.ScreenShotDirectory + "/" + user + ".json");
+            if (File.Exists(file.FullName))
+                shots = JsonConvert.DeserializeObject<ObservableCollection<ScreenShot>>(File.ReadAllText(file.FullName)).ToList();
+
+            return shots;
+        }
+
+        public void WriteScreenShots(string user, List<ScreenShot> shots)
+        {
+            if (!Directory.Exists(Consts.ScreenShotDirectory))
+            {
+                Directory.CreateDirectory(Consts.ScreenShotDirectory);
+            }
+            var file = new FileInfo(Consts.ScreenShotDirectory + "/" + user + ".json");
+            File.WriteAllText(file.FullName, JsonConvert.SerializeObject(shots));
+        }
     }
 }
