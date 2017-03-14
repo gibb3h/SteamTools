@@ -208,14 +208,18 @@ namespace SteamTools
                     var request = await http.GetAsync(GroupUrl.Text);
                     var response = await request.Content.ReadAsStreamAsync();
                     var document = parser.Parse(response);
- 
+
                     IList<IElement> users = document.QuerySelectorAll(".member_block").ToList();
 
                     await Task.WhenAll(BuildUserTasks(users));
 
                     if (document.QuerySelectorAll(".pagelink").Any())
                     {
-                        var lastPage = int.Parse(document.QuerySelector(".pageLinks").Children.Last(c => c.ClassName.Equals("pagelink")).TextContent, System.Globalization.NumberStyles.AllowThousands);
+                        var lastPage =
+                            int.Parse(
+                                document.QuerySelector(".pageLinks")
+                                        .Children.Last(c => c.ClassName.Equals("pagelink"))
+                                        .TextContent, System.Globalization.NumberStyles.AllowThousands);
                         for (var i = 2; i <= lastPage; i++)
                         {
                             using (var membersRequest = await http.GetAsync(GroupUrl.Text + "/?p=" + i))
@@ -233,21 +237,28 @@ namespace SteamTools
                     foreach (var u in Users)
                     {
                         Label.Content = "Getting Screenshots for " + u.Name;
-                        _dataAccess.WriteScreenShots(u.Name, await screenshotScraper.GetScreenShots(u.ProfileUrl, _dataAccess.GetScreenShots(u.Name)));
+                        _dataAccess.WriteScreenShots(u.Name,
+                                                     await
+                                                     screenshotScraper.GetScreenShots(u.ProfileUrl,
+                                                                                      _dataAccess.GetScreenShots(u.Name)));
                         Progress.Value++;
+                        ShowStats();
                     }
-                    Progress.Visibility = Visibility.Hidden;
-                    Label.Content = "Processing Complete!";
-                    
 
-                    ShowStats();
+                    Label.Content = "Processing Complete!";                   
                     Render.IsEnabled = true;
-//                   await GetTags();
                 }
                 catch (Exception ex)
                 {
+                    Label.Content = "An error occured";
                     MessageBox.Show(ex.Message);
                 }
+                finally
+                {
+                    Progress.Visibility = Visibility.Hidden;
+                    ShowStats();
+                }
+
             }
             else
             {
@@ -257,7 +268,6 @@ namespace SteamTools
 
         public IEnumerable<Task> BuildUserTasks(IList<IElement> users)
         {
- //           var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
             var downloadTasksQuery =
                           from usr in users
                           select GetUsers(usr).ContinueWith(t =>
