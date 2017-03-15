@@ -1,0 +1,81 @@
+﻿<Window x:Class="SteamTools.Comparison"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:steamTools="clr-namespace:SteamTools" xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        mc:Ignorable="d"
+        Title="Comparison" Height="{x:Static SystemParameters.PrimaryScreenHeight}" Width="{x:Static SystemParameters.PrimaryScreenWidth}"
+        d:DataContext="{d:DesignInstance steamTools:Comparison}">
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+        <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,40,0,0" ItemsSource="{Binding AllGames}" IsSynchronizedWithCurrentItem="True">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <WrapPanel>
+                        <TextBlock Text="{Binding Path=AppId}" Visibility="Collapsed"/>
+                        <Image Width="256px" Height="128px" Source="{Binding Path=Logo}" ToolTip="{Binding Path=Name}"/>
+                        <TextBlock Text="{Binding Path=Name}" Visibility="Collapsed"/>
+                        <ListView ItemsSource="{Binding Users}">
+                            <ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"></StackPanel>
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Image Width="64px" Height="64px" Source="{Binding Path=Logo}" ToolTip="{Binding Path=Name}"/>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </WrapPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <xctk:CheckComboBox Name="TagsDropDown" HorizontalAlignment="Left" Height="30" Margin="0,0,0,0" VerticalAlignment="Top" Width="450" IsEditable="True"  IsTextSearchEnabled="True" ItemsSource="{Binding AllTags}" ItemSelectionChanged="TagsDropDown_OnItemSelectionChanged">
+            <xctk:CheckComboBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid HorizontalAlignment="Stretch">
+                        <TextBlock Margin="2" Text="{Binding Name}"/>
+                        <TextBlock Margin="2" HorizontalAlignment="Right" Text="{Binding Count}"/>
+                    </Grid>
+                </DataTemplate>
+            </xctk:CheckComboBox.ItemTemplate>
+            <xctk:CheckComboBox.ItemContainerStyle>
+                <Style TargetType="xctk:SelectorItem">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=IsZero}" Value="True">
+                            <DataTrigger.Setters>
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger.Setters>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </xctk:CheckComboBox.ItemContainerStyle>
+        </xctk:CheckComboBox>
+        <xctk:CheckComboBox Name="UsersDropDown" HorizontalAlignment="Left" Height="30" Margin="478,0,0,0" VerticalAlignment="Top" Width="450" IsEditable="True" IsTextSearchEnabled="True" ItemsSource="{Binding AllUserNames}" ItemSelectionChanged="TagsDropDown_OnItemSelectionChanged">
+            <xctk:CheckComboBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid HorizontalAlignment="Stretch">
+                        <TextBlock Margin="2" Text="{Binding Name}"/>
+                        <TextBlock Margin="2" HorizontalAlignment="Right" Text="{Binding Count}"/>
+                    </Grid>
+                </DataTemplate>
+            </xctk:CheckComboBox.ItemTemplate>
+            <xctk:CheckComboBox.ItemContainerStyle>
+                <Style TargetType="xctk:SelectorItem">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=IsZero}" Value="True">
+                            <DataTrigger.Setters>
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger.Setters>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </xctk:CheckComboBox.ItemContainerStyle>
+        </xctk:CheckComboBox>
+        <Button x:Name="Export" Content="Export" HorizontalAlignment="Left" Margin="1816,0,0,0" VerticalAlignment="Top" Width="86" Height="30" Click="Export_Click"/>
+
+    </Grid>
+</Window>

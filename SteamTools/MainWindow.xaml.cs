@@ -35,7 +35,7 @@ namespace SteamTools
             try
             {
                 if (System.Deployment.Application.ApplicationDeployment.CurrentDeployment != null && System.Deployment.Application.ApplicationDeployment.CurrentDeployment.IsFirstRun)
-                    new changeLog().Show();
+                    new ChangeLog().Show();
             }
             catch 
             {
@@ -395,7 +395,10 @@ namespace SteamTools
 
         private void processGameComp_Click(object sender, RoutedEventArgs e)
         {
-            Renderer.Render(Users.ToList(),AllGames);
+//            Renderer.Render(Users.ToList(),AllGames);
+            var comp = new Comparison(AllGames,Users) {WindowStartupLocation = WindowStartupLocation.CenterScreen};
+            comp.SourceInitialized += (s, a) => comp.WindowState = WindowState.Maximized;
+            comp.Show();
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)

@@ -17,9 +17,9 @@ namespace SteamTools
     /// <summary>
     /// Interaction logic for changeLog.xaml
     /// </summary>
-    public partial class changeLog : Window
+    public partial class ChangeLog : Window
     {
-        public changeLog()
+        public ChangeLog()
         {
             InitializeComponent();
             browser.Source = new Uri("https://github.com/gibb3h/SteamTools/commits/master");
