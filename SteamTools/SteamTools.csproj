@@ -32,7 +32,7 @@
     <UpdateUrl>https://raw.githubusercontent.com/gibb3h/SteamTools/master/Publish/</UpdateUrl>
     <ProductName>SteamTools</ProductName>
     <PublisherName>Gibsoft</PublisherName>
-    <ApplicationRevision>8</ApplicationRevision>
+    <ApplicationRevision>10</ApplicationRevision>
     <ApplicationVersion>0.1.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -159,6 +159,9 @@
     </Compile>
     <Compile Include="Classes\Consts.cs" />
     <Compile Include="Classes\DataAccess.cs" />
+    <Compile Include="ScreenShotGallery.xaml.cs">
+      <DependentUpon>ScreenShotGallery.xaml</DependentUpon>
+    </Compile>
     <Compile Include="gameUpdate.xaml.cs">
       <DependentUpon>gameUpdate.xaml</DependentUpon>
     </Compile>
@@ -176,6 +179,10 @@
     <Page Include="Comparison.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ScreenShotGallery.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="gameUpdate.xaml">
       <SubType>Designer</SubType>
@@ -249,7 +256,12 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Desktop\fluidkit\FluidKit\FluidKit.csproj">
+      <Project>{75541544-bf77-4fdc-b03b-bc0dbebfb8f5}</Project>
+      <Name>FluidKit</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

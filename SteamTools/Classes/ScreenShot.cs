@@ -1,6 +1,6 @@
 ﻿namespace SteamTools.Classes
 {
-    class ScreenShot
+    public class ScreenShot
     {
         public string Url { get; set; }
         public string Filename { get; set; }

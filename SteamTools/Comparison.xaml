@@ -8,7 +8,7 @@
         Title="Comparison" Height="{x:Static SystemParameters.PrimaryScreenHeight}" Width="{x:Static SystemParameters.PrimaryScreenWidth}"
         d:DataContext="{d:DesignInstance steamTools:Comparison}">
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
-        <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,40,0,0" ItemsSource="{Binding AllGames}" IsSynchronizedWithCurrentItem="True">
+        <ListView Name="GamesView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,40,0,0" ItemsSource="{Binding AllGames}" IsSynchronizedWithCurrentItem="True" SelectedItem="{Binding SelectedGame}">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <WrapPanel>

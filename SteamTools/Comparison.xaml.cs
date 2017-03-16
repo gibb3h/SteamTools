@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Controls;
 using SteamTools.Annotations;
 using SteamTools.Classes;
 using Xceed.Wpf.Toolkit.Primitives;
@@ -22,7 +23,7 @@ namespace SteamTools
         private ObservableCollection<CompGame> _allGames { get; set; }
         private ObservableCollection<CompTag> _allTags { get; set; }
         private ObservableCollection<CompTag> _allUserNames { get; set; }
-
+        private CompGame _selectedGame { get; set; }
         public ObservableCollection<CompGame> AllGames
         {
             get { return _allGames ?? (_allGames = new ObservableCollection<CompGame>()); }
@@ -36,6 +37,22 @@ namespace SteamTools
         public ObservableCollection<CompTag> AllUserNames
         {
             get { return _allUserNames ?? (_allUserNames = new ObservableCollection<CompTag>()); }
+        }
+
+        public CompGame SelectedGame
+        {
+            get { return _selectedGame ?? new CompGame(); }
+            set
+            {
+                if (_selectedGame == null || value == null || value.AppId == _selectedGame.AppId)
+                {
+                    _selectedGame = new CompGame();
+                    return;                
+                }
+                   
+                _selectedGame = value;
+                ShowScreenShots(_selectedGame);
+            }
         }
 
         public Comparison(List<Game> allGames, List<User> allUsers)
@@ -135,6 +152,15 @@ namespace SteamTools
         private void Export_Click(object sender, RoutedEventArgs e)
         {
             Renderer.Render(AllUsers.ToList(), Games);
+        }
+
+        private void ShowScreenShots(CompGame game)
+        {
+            var ssg = new ScreenShotGallery(game.AppId, game.Users.Select(u => u.Name).ToList());
+            if (ssg.ScreenShots.Any())
+                ssg.ShowDialog();
+            else
+                MessageBox.Show("No screenshots for this game!");
         }
     }
 

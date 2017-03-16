@@ -49,6 +49,24 @@ namespace SteamTools.Classes
             return shots;
         }
 
+        public List<ScreenShot> GetGameScreenShots(int appId, List<string> users)
+        {
+            var shots = new List<ScreenShot>();
+            foreach (var file in users.Select(user => new FileInfo(Consts.ScreenShotDirectory + "/" + user + ".json")).Where(file => File.Exists(file.FullName)))
+            {
+                try
+                {
+                    using (var sr = new StreamReader(file.FullName))
+                        shots.AddRange(JsonConvert.DeserializeObject<ObservableCollection<ScreenShot>>(sr.ReadToEnd()).ToList().Where(s => s.AppId.Equals(appId)));
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
+            }
+            return shots;
+        }
+
         public void WriteCachedUsers(string groupUrl, List<User> users)
         {
             if (!string.IsNullOrEmpty(groupUrl))
