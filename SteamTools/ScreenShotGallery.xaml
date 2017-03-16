@@ -14,8 +14,13 @@
                           
             <Controls:ElementFlow.ItemTemplate>    
                 <DataTemplate>
-                    <Grid>
+                   <Grid>                        
                         <Image Stretch="Uniform" Source="{Binding Url}" />
+                        <Image Source="{Binding User.Logo}" ToolTip="{Binding User.Name}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="64px" Height="64px" Margin="-10,-10">
+                            <Image.Effect>
+                                <DropShadowEffect ShadowDepth="0" Color="White" BlurRadius="10" />
+                            </Image.Effect>
+                        </Image>
                         <TextBlock Text="{Binding Description}" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,-50">
                             <TextBlock.Effect>
                                 <DropShadowEffect ShadowDepth="0" Color="White" BlurRadius="10" />

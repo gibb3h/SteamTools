@@ -156,7 +156,7 @@ namespace SteamTools
 
         private void ShowScreenShots(CompGame game)
         {
-            var ssg = new ScreenShotGallery(game.AppId, game.Users.Select(u => u.Name).ToList());
+            var ssg = new ScreenShotGallery(game.AppId, game.Users);
             if (ssg.ScreenShots.Any())
                 ssg.ShowDialog();
             else
