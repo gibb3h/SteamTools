@@ -10,6 +10,7 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using SteamTools.Classes;
 using SteamTools.Properties;
 using System.Diagnostics;
 using System.Net;
@@ -72,23 +73,6 @@ namespace SteamTools
             return allGameIds;
         }
 
-        //private void UpdateUserGame(int appId, List<string> tags)
-        //{
-        //    var gameName = "";
-        //    foreach (var game in AllGames.Where(game => game.AppId.Equals(appId)))
-        //    {
-        //        game.ExistsInStore = !tags.Count.Equals(0);
-        //        game.Tags = tags;
-        //        gameName = game.Name;
-        //    }
-
-        //    if (!tags.Count.Equals(0))
-        //    {
-        //        Label.Content = "Updating " + gameName;
-        //        ShowStats();
-        //    }
-        //}
-
         private void GetData()
         {
             Users = _dataAccess.GetCachedUsers(Settings.Default.groupUrl);
@@ -101,7 +85,6 @@ namespace SteamTools
         private void WriteData()
         {
             _dataAccess.WriteCachedUsers(GroupUrl.Text, Users);
-//            _dataAccess.WriteCachedGames(AllGames);
         }
 
         public List<int> GetGames(Stream response)
@@ -128,7 +111,6 @@ namespace SteamTools
                     var game = JsonConvert.DeserializeObject<List<Game>>(jsonStr);
                     if (_allOk)
                     {
- //                       var res = await AddAllGames(game);
                         games.AddRange(game.Select(g => g.AppId).ToList());
                     }
                 }
@@ -140,57 +122,6 @@ namespace SteamTools
 
             return games;
         }
-
-        //private async Task<List<int>> AddAllGames(List<Game> game)
-        //{
-        //    var maxThread = new SemaphoreSlim(10);
-        //    var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
-        //    foreach (
-        //        var currGame in
-        //            game.Where(
-        //                g =>
-        //                !AllGames.Any(g2 => g2.AppId.Equals(g.AppId)) ||
-        //                AllGames.Any(g3 => g3.AppId.Equals(g.AppId) && g3.Tags.Count.Equals(0))))
-        //    {
-        //        if (_allOk)
-        //        {
-        //            maxThread.Wait();
-        //            //if (AllGames.Any(g => g.AppId.Equals(currGame.AppId)) &&
-        //            //    AllGames.First(g => g.AppId.Equals(currGame.AppId)).Tags.Count > 0)
-        //            if (AllGames.Any(g => g.AppId.Equals(currGame.AppId)))
-        //            {
-        //                UpdateUserGame(currGame.AppId, AllGames.First(g => g.AppId.Equals(currGame.AppId)).Tags);
-        //                maxThread.Release();
-        //            }
-        //            else
-        //            {
-        //                AllGames.Add(currGame);
-        //                var game1 = currGame;
-        //                await GetTags("http://store.steampowered.com/app/" + currGame.AppId).ContinueWith(task =>
-        //                    {
-        //                        if (task.IsFaulted)
-        //                        {
-        //                            _allOk = false;
-        //                            Exception ex = task.Exception;
-        //                            while (ex is AggregateException && ex.InnerException != null)
-        //                                ex = ex.InnerException;
-        //                            if (ex != null) MessageBox.Show(ex.Message);
-        //                        }
-        //                        else
-        //                        {
-        //                            UpdateUserGame(game1.AppId, task.Result);
-        //                        }
-        //                        maxThread.Release();
-
-        //                    }, uiContext);
-        //            }
-        //            Progress.Value++;
-        //        }
-        //    }
-
-        //    return game.Select(g => g.AppId).ToList();
-        //    //           AllGames.AddRange(game.Where(g => !AllGames.Any(g2 => g2.AppId.Equals(g.AppId))));
-        //}
 
         #region Tasks
 
@@ -320,52 +251,9 @@ namespace SteamTools
             return user;
         }
 
-        //public async Task<List<string>> GetTags(string url)
-        //{
-        //    var tags = new List<string>();
-        //    if (_allOk)
-        //    {
-        //        try
-        //        {
-        //            var handler = new HttpClientHandler {UseCookies = false};
-        //            using (var http = new HttpClient(handler))
-        //            {
-        //                var headMsg = new HttpRequestMessage(HttpMethod.Head, url);
-        //                headMsg.Headers.Add("Cookie", "birthtime=504921601; lastagecheckage=1-January-1986");
-        //                var headResult = await http.SendAsync(headMsg);
-        //                if (
-        //                    !headResult.RequestMessage.RequestUri.OriginalString.Equals("http://store.steampowered.com/") &&
-        //                    !headResult.RequestMessage.RequestUri.Host.Equals("steamcommunity.com"))
-        //                {
-        //                    var message = new HttpRequestMessage(HttpMethod.Get, url);
-        //                    message.Headers.Add("Cookie", "birthtime=504921601; lastagecheckage=1-January-1986");
-        //                    var result = await http.SendAsync(message);
-        //                    result.EnsureSuccessStatusCode();
-        //                    var parser = new HtmlParser();
-        //                    var response = await result.Content.ReadAsStreamAsync();
-        //                    var document = parser.Parse(response);
-
-        //                    tags.AddRange(
-        //                        document.QuerySelectorAll(".app_tag")
-        //                                .Where(t => t.TextContent.Replace(" ", "") != "+")
-        //                                .Select(ele => ReplaceWhitespace(ele.TextContent, "")));
-        //                    if (tags.Count == 0)
-        //                        tags.Add("No tags");
-        //                }
-        //            }
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            throw e;
-        //        }
-        //    }
-        //    return tags;
-        //}
-
         #endregion
 
         #region Events
-
 
         private async void button_Click(object sender, RoutedEventArgs e)
         {
@@ -385,6 +273,7 @@ namespace SteamTools
             {
                 Settings.Default.groupUrl = GroupUrl.Text;
                 GetData();
+                Button.IsEnabled = true;
             }
         }
 
@@ -395,7 +284,6 @@ namespace SteamTools
 
         private void processGameComp_Click(object sender, RoutedEventArgs e)
         {
-//            Renderer.Render(Users.ToList(),AllGames);
             var comp = new Comparison(AllGames,Users) {WindowStartupLocation = WindowStartupLocation.CenterScreen};
             comp.SourceInitialized += (s, a) => comp.WindowState = WindowState.Maximized;
             comp.Show();

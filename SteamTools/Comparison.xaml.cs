@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using SteamTools.Annotations;
+using SteamTools.Classes;
 using Xceed.Wpf.Toolkit.Primitives;
 
 namespace SteamTools
@@ -12,7 +13,7 @@ namespace SteamTools
     /// <summary>
     /// Interaction logic for Comparison.xaml
     /// </summary>
-    public partial class Comparison : Window
+    public partial class Comparison
     {
         private List<Game> Games { get; set; }
         public List<User> AllUsers { get; set; }
@@ -137,6 +138,7 @@ namespace SteamTools
         }
     }
 
+#region internalClasses
     public class CompUser
     {
         public string Name { get; set; }
@@ -198,4 +200,6 @@ namespace SteamTools
         public List<string> Tags { get; set; }
         public List<User> Users { get; set; }
     }
+
+#endregion
 }

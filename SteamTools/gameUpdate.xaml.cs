@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Media;
 using AngleSharp.Parser.Html;
 using Newtonsoft.Json;
-using MessageBox = System.Windows.MessageBox;
+using SteamTools.Classes;
 
 namespace SteamTools
 {
@@ -171,7 +171,6 @@ namespace SteamTools
                 throw e;
             }
             newGame.Tags = tags;
-//            await Task.Delay(1000);
            
             return newGame;
         }
