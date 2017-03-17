@@ -2,24 +2,26 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "SteamTools"
-#define MyAppVersion "0.3"
+#define MyAppVersion "0.1.1.9"
 #define MyAppPublisher "Gibsoft"
+#define MyAppURL "https://github.com/gibb3h/SteamTools"
 #define MyAppExeName "SteamTools.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{902D1BB9-58E6-439E-BC5F-D508370A74FC}
+AppId={{A17935C8-9D37-4871-8DD1-4DE04A38ED54}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
+AppPublisherURL={#MyAppURL}
+AppSupportURL={#MyAppURL}
+AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
-OutputDir=C:\Users\khawk\Desktop\installer
 OutputBaseFilename=setup
-SetupIconFile=C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\favicon.ico
 Compression=lzma
 SolidCompression=yes
 
@@ -31,9 +33,19 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\bin\Release\SteamTools.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\css\*"; DestDir: "{app}\css"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\cachedGames.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\bin\Release\AngleSharp.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\bin\Release\AngleSharp.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\bin\Release\FluidKit.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\bin\Release\Newtonsoft.Json.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\bin\Debug\css\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\bin\Release\Newtonsoft.Json.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\bin\Release\Xceed.Wpf.AvalonDock.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\bin\Release\Xceed.Wpf.AvalonDock.Themes.Aero.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\bin\Release\Xceed.Wpf.AvalonDock.Themes.Metro.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\bin\Release\Xceed.Wpf.AvalonDock.Themes.VS2010.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\bin\Release\Xceed.Wpf.DataGrid.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\khawk\OneDrive\Coding\steamTools resharper\SteamTools\SteamTools\bin\Release\Xceed.Wpf.Toolkit.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
