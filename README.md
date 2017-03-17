@@ -7,7 +7,7 @@ Download Publish/setup.exe and run, program will autoupdate when new builds are 
 
 Features :-
 
-Process a Steam community group members list and generate an HTML page displaying a list of games and which users own them.  This list can be filtered to only show games what a selected list of users own and also by steam community tags on the games.
+Process a Steam community group members list and generate a comparison of games and which users own them.  This list can be filtered to only show games which a selected list of users own and also by steam community tags on the games.  Games from this list can be selected to view a combined gallery of all screenshots for this game from members of the group.  Should you wish, an HTML version of the screen can be exported, exluding the screenshot gallery functionality.
 
 Data is cached in JSON files to minimize the number of web requests performed (game tags require loading the store page for each game which takes a while if the group have many games!)
 
