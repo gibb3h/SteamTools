@@ -91,7 +91,7 @@ namespace SteamTools
 
             var result =
                 MessageBox.Show(
-                    _currentCache.Count.Equals(_allApps.Count)
+                    _currentCache.Count >= _allApps.Count
                         ? "processing complete!"
                         : "processing did not complete, please try again", "Results", MessageBoxButton.OK);
             if (result == MessageBoxResult.OK)
