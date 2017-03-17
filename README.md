@@ -5,6 +5,8 @@ Installation :-
 
 Download Publish/setup.exe and run, program will autoupdate when new builds are published.
 
+Should the ClickOnce installer not work for you, or you are not interested in auto updates you can use the standalone installer in Output/setup.exe
+
 Features :-
 
 Process a Steam community group members list and generate a comparison of games and which users own them.  This list can be filtered to only show games which a selected list of users own and also by steam community tags on the games.  Games from this list can be selected to view a combined gallery of all screenshots for this game from members of the group.  Should you wish, an HTML version of the screen can be exported, exluding the screenshot gallery functionality.
