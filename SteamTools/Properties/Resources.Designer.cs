@@ -71,6 +71,16 @@ namespace SteamTools.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap NoLogo {
+            get {
+                object obj = ResourceManager.GetObject("NoLogo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {Binding ActualWidth, ElementName=showFolder}.
         /// </summary>
         internal static string String {

@@ -77,7 +77,7 @@ namespace SteamTools
                 _allGames.Add(new CompGame
                     {
                         AppId = id.AppId,
-                        Logo = id.Logo,
+                        Logo = id.Logo ?? "pack://application:,,,/Resources/NoLogo.jpg",
                         Name = id.Name,
                         Tags = id.Tags,
                         Users = gameUsers

@@ -1,14 +1,6 @@
 
 using System.Collections.ObjectModel;
-using System.Linq;
-using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using FluidKit.Controls;
 using SteamTools.Classes;
 
 namespace SteamTools
@@ -34,6 +26,7 @@ namespace SteamTools
             foreach (var usr in users)
             {
                 var tmp = da.GetGameScreenShots(appId, usr.Name);
+                tmp.Reverse();
                 foreach (var screenShot in tmp)
                 {
                     _screenShots.Add(new ScreenShotGal()
