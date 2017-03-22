@@ -44,6 +44,7 @@ namespace SteamTools.Classes
                 }
                 catch (Exception e)
                 {
+                    Logger.log(e);
                     MessageBox.Show(e.Message);
                 }
             return shots;
@@ -61,6 +62,7 @@ namespace SteamTools.Classes
                 }
                 catch (Exception e)
                 {
+                    Logger.log(e);
                     MessageBox.Show(e.Message);
                 }            
             
@@ -80,6 +82,7 @@ namespace SteamTools.Classes
                 }
                 catch (Exception e)
                 {
+                    Logger.log(e);
                     MessageBox.Show(e.Message);
                 }
             }
@@ -93,6 +96,7 @@ namespace SteamTools.Classes
             }
             catch (Exception e)
             {
+                Logger.log(e);
                 MessageBox.Show(e.Message);
             }
         }
@@ -111,6 +115,7 @@ namespace SteamTools.Classes
             }
             catch (Exception e)
             {
+                Logger.log(e);
                 MessageBox.Show(e.Message);
             }
         }

@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "SteamTools"
-#define MyAppVersion "0.1.1.9"
+#define MyAppVersion "0.1.1.12"
 #define MyAppPublisher "Gibsoft"
 #define MyAppURL "https://github.com/gibb3h/SteamTools"
 #define MyAppExeName "SteamTools.exe"

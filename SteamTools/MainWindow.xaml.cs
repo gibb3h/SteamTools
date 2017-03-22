@@ -116,6 +116,7 @@ namespace SteamTools
                 }
                 catch (Exception e)
                 {
+                    Logger.log(e);
                     MessageBox.Show(e.Message);
                 }
             }
@@ -181,6 +182,7 @@ namespace SteamTools
                 }
                 catch (Exception ex)
                 {
+                    Logger.log(ex);
                     Label.Content = "An error occured";
                     MessageBox.Show(ex.Message);
                 }
