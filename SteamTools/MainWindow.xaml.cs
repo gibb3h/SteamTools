@@ -14,6 +14,7 @@ using SteamTools.Classes;
 using SteamTools.Properties;
 using System.Diagnostics;
 using System.Net;
+using System.Windows.Shell;
 using Visibility = System.Windows.Visibility;
 
 namespace SteamTools
@@ -44,6 +45,8 @@ namespace SteamTools
             }
 
             InitializeComponent();
+            
+
             GetData();
             GroupUrl.Text = Settings.Default.groupUrl ?? string.Empty;
             CheckForUpdates();
@@ -135,6 +138,7 @@ namespace SteamTools
                 {
                     Progress.Maximum = GetUserGameIds().Count;
                     Progress.Visibility = Visibility.Visible;
+                    taskBarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
                     var parser = new HtmlParser();
                     var http = new HttpClient();
                     var request = await http.GetAsync(GroupUrl.Text);
@@ -174,6 +178,7 @@ namespace SteamTools
                                                      screenshotScraper.GetScreenShots(u.ProfileUrl,
                                                                                       _dataAccess.GetScreenShots(u.Name)));
                         Progress.Value++;
+                        taskBarItemInfo.ProgressValue = Progress.Value / Progress.Maximum;
                         ShowStats();
                     }
 
@@ -189,6 +194,7 @@ namespace SteamTools
                 finally
                 {
                     Progress.Visibility = Visibility.Hidden;
+                    taskBarItemInfo.ProgressState = TaskbarItemProgressState.None;
                     ShowStats();
                 }
 
