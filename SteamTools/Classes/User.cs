@@ -16,6 +16,7 @@ namespace SteamTools.Classes
         {
             Games = new List<int>();
             PrivateProfile = false;
+            SteamId = "";
         }
     }
 }

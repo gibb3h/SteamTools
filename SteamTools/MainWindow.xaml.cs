@@ -68,7 +68,7 @@ namespace SteamTools
             TagsStats.Content = string.Format("{0} unique tags",
                 AllGames.Where(g => allGames.Contains(g.AppId)).SelectMany(g => g.Tags).Distinct().Count());
             ScreenStats.Content = string.Format("{0} Screenshots",
-                Users.Sum(u => _dataAccess.GetScreenShots(u.Name).Count));
+                Users.Sum(u => _dataAccess.GetScreenShots(u.SteamId).Count));
         }
 
         private List<int> GetUserGameIds()
@@ -177,10 +177,10 @@ namespace SteamTools
                     foreach (var u in Users)
                     {
                         Label.Content = "Getting Screenshots for " + u.Name;
-                        _dataAccess.WriteScreenShots(u.Name,
+                        _dataAccess.WriteScreenShots(u.SteamId,
                             await
                                 screenshotScraper.GetScreenShots(u.ProfileUrl,
-                                    _dataAccess.GetScreenShots(u.Name)));
+                                    _dataAccess.GetScreenShots(u.SteamId)));
                         Progress.Value++;
                         taskBarItemInfo.ProgressValue = Progress.Value / Progress.Maximum;
                         ShowStats();
@@ -215,14 +215,14 @@ namespace SteamTools
                 from usr in users
                 select GetUsers(usr).ContinueWith(t =>
                 {
-                    if (!Users.Any(u => u.Name.Equals(t.Result.Name)))
+                    if (!Users.Any(u => u.SteamId.Equals(t.Result.SteamId)))
                     {
                         Users.Add(t.Result);
                         Dispatcher.Invoke(ShowStats);
                     }
                     else
                     {
-                        foreach (var user in Users.Where(u => u.Name.Equals(t.Result.Name)))
+                        foreach (var user in Users.Where(u => u.SteamId.Equals(t.Result.SteamId)))
                         {
                             user.Games = t.Result.Games;
                             user.PrivateProfile = t.Result.PrivateProfile;

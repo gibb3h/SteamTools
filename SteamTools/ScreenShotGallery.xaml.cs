@@ -25,7 +25,7 @@ namespace SteamTools
 
             foreach (var usr in users)
             {
-                var tmp = da.GetGameScreenShots(appId, usr.Name);
+                var tmp = da.GetGameScreenShots(appId, usr.SteamId);
                 tmp.Reverse();
                 foreach (var screenShot in tmp)
                 {
