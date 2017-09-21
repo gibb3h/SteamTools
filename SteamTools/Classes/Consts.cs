@@ -32,7 +32,7 @@ namespace SteamTools.Classes
 
         public static string ElemImgId
         {
-            get { return ".imgWallHover"; }
+            get => ".imgWallHover";
         }
 
         public static string ElemDesc
