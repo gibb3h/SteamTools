@@ -10,6 +10,7 @@ namespace SteamTools.Classes
         public List<int> Games { get; set; }
         public string GameCount { get { return Games.Count.ToString(); } }
         public bool PrivateProfile { get; set; }
+        public string SteamId { get; set; }
 
         public User()
         {

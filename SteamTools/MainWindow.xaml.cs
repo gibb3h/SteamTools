@@ -36,16 +36,17 @@ namespace SteamTools
         {
             try
             {
-                if (System.Deployment.Application.ApplicationDeployment.CurrentDeployment != null && System.Deployment.Application.ApplicationDeployment.CurrentDeployment.IsFirstRun)
+                if (System.Deployment.Application.ApplicationDeployment.CurrentDeployment != null &&
+                    System.Deployment.Application.ApplicationDeployment.CurrentDeployment.IsFirstRun)
                     new ChangeLog().Show();
             }
-            catch 
+            catch
             {
 
             }
 
             InitializeComponent();
-            
+
 
             GetData();
             GroupUrl.Text = Settings.Default.groupUrl ?? string.Empty;
@@ -60,11 +61,14 @@ namespace SteamTools
         public void ShowStats()
         {
             var allGames = GetUserGameIds();
-            PlayerStats.Content = string.Format("{0} Users ({1} of which have private profiles)", Users.Count, Users.Count(u => u.PrivateProfile.Equals(true)));
-            GameStats.Content = string.Format("{0} Games ({1} of which are no longer on the Steam Store)", allGames.Count(), AllGames.Count(g => g.ExistsInStore.Equals(false) && allGames.Contains(g.AppId)));
-            TagsStats.Content = string.Format("{0} unique tags", AllGames.Where(g => allGames.Contains(g.AppId)).SelectMany(g => g.Tags).Distinct().Count());
+            PlayerStats.Content = string.Format("{0} Users ({1} of which have private profiles)", Users.Count,
+                Users.Count(u => u.PrivateProfile.Equals(true)));
+            GameStats.Content = string.Format("{0} Games ({1} of which are no longer on the Steam Store)",
+                allGames.Count(), AllGames.Count(g => g.ExistsInStore.Equals(false) && allGames.Contains(g.AppId)));
+            TagsStats.Content = string.Format("{0} unique tags",
+                AllGames.Where(g => allGames.Contains(g.AppId)).SelectMany(g => g.Tags).Distinct().Count());
             ScreenStats.Content = string.Format("{0} Screenshots",
-                                                Users.Sum(u => _dataAccess.GetScreenShots(u.Name).Count));
+                Users.Sum(u => _dataAccess.GetScreenShots(u.Name).Count));
         }
 
         private List<int> GetUserGameIds()
@@ -80,7 +84,7 @@ namespace SteamTools
         {
             Users = _dataAccess.GetCachedUsers(Settings.Default.groupUrl);
             var dbg = _dataAccess.GetCachedGames();
-            AllGames = dbg.GroupBy(x => x.AppId).Select(y => y.First()).ToList(); 
+            AllGames = dbg.GroupBy(x => x.AppId).Select(y => y.First()).ToList();
             ShowStats();
             Button.IsEnabled = true;
         }
@@ -103,11 +107,11 @@ namespace SteamTools
             var tmp = document.QuerySelectorAll("script");
             var gameList = tmp[tmp.Length - 1];
             var str = gameList.InnerHtml;
-            var tmp2 = str.Split(new[] { "[{" }, StringSplitOptions.None);
+            var tmp2 = str.Split(new[] {"[{"}, StringSplitOptions.None);
 
             if (tmp2.Length >= 2)
             {
-                var tmp3 = tmp2[1].Split(new[] { "}];" }, StringSplitOptions.None);
+                var tmp3 = tmp2[1].Split(new[] {"}];"}, StringSplitOptions.None);
                 try
                 {
                     var jsonStr = string.Format("{0}{1}{2}", "[{", tmp3[0], "}]");
@@ -154,8 +158,8 @@ namespace SteamTools
                         var lastPage =
                             int.Parse(
                                 document.QuerySelector(".pageLinks")
-                                        .Children.Last(c => c.ClassName.Equals("pagelink"))
-                                        .TextContent, System.Globalization.NumberStyles.AllowThousands);
+                                    .Children.Last(c => c.ClassName.Equals("pagelink"))
+                                    .TextContent, System.Globalization.NumberStyles.AllowThousands);
                         for (var i = 2; i <= lastPage; i++)
                         {
                             using (var membersRequest = await http.GetAsync(GroupUrl.Text + "/?p=" + i))
@@ -174,15 +178,15 @@ namespace SteamTools
                     {
                         Label.Content = "Getting Screenshots for " + u.Name;
                         _dataAccess.WriteScreenShots(u.Name,
-                                                     await
-                                                     screenshotScraper.GetScreenShots(u.ProfileUrl,
-                                                                                      _dataAccess.GetScreenShots(u.Name)));
+                            await
+                                screenshotScraper.GetScreenShots(u.ProfileUrl,
+                                    _dataAccess.GetScreenShots(u.Name)));
                         Progress.Value++;
                         taskBarItemInfo.ProgressValue = Progress.Value / Progress.Maximum;
                         ShowStats();
                     }
 
-                    Label.Content = "Processing Complete!";                   
+                    Label.Content = "Processing Complete!";
                     Render.IsEnabled = true;
                 }
                 catch (Exception ex)
@@ -208,35 +212,37 @@ namespace SteamTools
         public IEnumerable<Task> BuildUserTasks(IList<IElement> users)
         {
             var downloadTasksQuery =
-                          from usr in users
-                          select GetUsers(usr).ContinueWith(t =>
-                          {
-                              if (!Users.Any(u => u.Name.Equals(t.Result.Name)))
-                              {
-                                  Users.Add(t.Result);
-                                  Dispatcher.Invoke(ShowStats);                              
-                              }
-                              else
-                              {
-                                  foreach (var user in Users.Where(u => u.Name.Equals(t.Result.Name)))
-                                  {
-                                      user.Games = t.Result.Games;
-                                      user.PrivateProfile = t.Result.PrivateProfile;
-                                  }
-                              }
-                          });
-            return downloadTasksQuery;       
+                from usr in users
+                select GetUsers(usr).ContinueWith(t =>
+                {
+                    if (!Users.Any(u => u.Name.Equals(t.Result.Name)))
+                    {
+                        Users.Add(t.Result);
+                        Dispatcher.Invoke(ShowStats);
+                    }
+                    else
+                    {
+                        foreach (var user in Users.Where(u => u.Name.Equals(t.Result.Name)))
+                        {
+                            user.Games = t.Result.Games;
+                            user.PrivateProfile = t.Result.PrivateProfile;
+                        }
+                    }
+                });
+            return downloadTasksQuery;
         }
 
         public async Task<User> GetUsers(IElement usr)
         {
-            var user = Users.Where(u => u.Name.Equals(usr.QuerySelector(".linkFriend").TextContent)).DefaultIfEmpty(new User()).First();
+            var user = Users.Where(u => u.Name.Equals(usr.QuerySelector(".linkFriend").TextContent))
+                .DefaultIfEmpty(new User()).First();
             user.Name = usr.QuerySelector(".linkFriend").TextContent;
             user.Logo = usr.QuerySelector(".playerAvatar a img").GetAttribute("src").Replace(".jpg", "_full.jpg");
             user.ProfileUrl = usr.QuerySelector(".playerAvatar a").GetAttribute("href");
+
             var http = new HttpClient();
             var request = await http.GetAsync(user.ProfileUrl + "/games?tab=all");
-            if (request.StatusCode.Equals((HttpStatusCode)429))
+            if (request.StatusCode.Equals((HttpStatusCode) 429))
             {
                 MessageBox.Show("Steam has stop accepting requests, you will have to wait a while!");
                 Application.Current.Shutdown();
@@ -249,6 +255,14 @@ namespace SteamTools
                     var games = GetGames(response);
                     user.Games.AddRange(games.Where(x => user.Games.All(y => y != x)));
                     user.PrivateProfile = false;
+                    request = await http.PostAsync("https://steamid.io/lookup",
+                        new FormUrlEncodedContent(new Dictionary<string, string> {{"input", user.ProfileUrl}}));
+                    response = await request.Content.ReadAsStreamAsync();
+                    var parser = new HtmlParser();
+                    var document = parser.Parse(response);
+                    var tmp = document.QuerySelectorAll("script")[0].InnerHtml.Trim().TrimEnd(';');
+                    var script = JsonConvert.DeserializeObject<dynamic>(tmp);
+                    user.SteamId = script.url.ToString().Split('/')[4];
                 }
                 catch (Exception ex)
                 {
@@ -292,7 +306,7 @@ namespace SteamTools
 
         private void processGameComp_Click(object sender, RoutedEventArgs e)
         {
-            var comp = new Comparison(AllGames,Users) {WindowStartupLocation = WindowStartupLocation.CenterScreen};
+            var comp = new Comparison(AllGames, Users) {WindowStartupLocation = WindowStartupLocation.CenterScreen};
             comp.SourceInitialized += (s, a) => comp.WindowState = WindowState.Maximized;
             comp.Show();
         }
@@ -305,11 +319,12 @@ namespace SteamTools
             base.OnClosing(e);
             Application.Current.Shutdown();
         }
+
         #endregion
 
         private void RefreshGameCache_Click(object sender, RoutedEventArgs e)
         {
-            new GameUpdate(AllGames).ShowDialog(); 
+            new GameUpdate(AllGames).ShowDialog();
         }
 
         private void CheckForUpdates()
