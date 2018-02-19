@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SteamTools.Classes
 {
     internal class DataAccess
     {
+        private readonly char[] _invalidChars = Path.GetInvalidFileNameChars();
         public List<User> GetCachedUsers(string groupUrl)
         {
             var users = new List<User>();
@@ -68,6 +70,20 @@ namespace SteamTools.Classes
             
             return shots;
            
+        }
+
+        public async Task<bool> DownloadScreenShot(Stream s, string gamename, string filename)
+        {
+            var path = Consts.ScreenShotDirectory + Path.DirectorySeparatorChar + new string(gamename
+                           .Where(x => !_invalidChars.Contains(x))
+                           .ToArray()) + Path.DirectorySeparatorChar + filename;
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            using (var fs = File.Create(path))
+            {
+                await s.CopyToAsync(fs);
+            }
+
+            return true;
         }
 
         public void WriteCachedUsers(string groupUrl, List<User> users)

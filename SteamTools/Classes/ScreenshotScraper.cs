@@ -21,6 +21,7 @@ namespace SteamTools.Classes
             var results = new List<ScreenShot>();
             var request = await _http.GetAsync(userProfile + Consts.UrlScreenshot);
             var response = await request.Content.ReadAsStreamAsync();
+            Console.WriteLine(userProfile + Consts.UrlScreenshot);
             request.EnsureSuccessStatusCode();
             var document = _parser.Parse(response);
             var count = document.QuerySelectorAll("#image_wall > div:nth-child(3) > div:nth-child(1)").Any()

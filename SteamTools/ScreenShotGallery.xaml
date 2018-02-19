@@ -8,7 +8,10 @@
         x:Class="SteamTools.ScreenShotGallery"
              mc:Ignorable="d" d:DataContext="{d:DesignInstance steamTools:ScreenShotGallery}">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+        </Grid.RowDefinitions>
         <Controls:ElementFlow ItemsSource="{Binding ScreenShots}"
                          ElementWidth="1280" ElementHeight="800" HasReflection="True" >
                           
@@ -38,5 +41,10 @@
                                LookDirection="0,0,-3" />
             </Controls:ElementFlow.Camera>
         </Controls:ElementFlow>
+        <StatusBar DockPanel.Dock="Bottom" Grid.Row="1">
+            <Button Name="DownloadScreenShots" Click="DownloadScreenShots_OnClick">Download Screenshots</Button>
+            <ProgressBar Name="progressBar" Height="15" Width="250" Visibility="Hidden"/>
+        </StatusBar>
     </Grid>
+
 </Window>

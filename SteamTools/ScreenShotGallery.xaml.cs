@@ -1,6 +1,9 @@
 
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Windows;
 using SteamTools.Classes;
 
 namespace SteamTools
@@ -43,6 +46,27 @@ namespace SteamTools
             }
 
             InitializeComponent();
+        }
+
+        private async void DownloadScreenShots_OnClick(object sender, RoutedEventArgs e)
+        {
+            progressBar.Visibility = Visibility.Visible;
+            progressBar.Maximum = _screenShots.Count;
+             var da = new DataAccess();
+            using (var http = new HttpClient())
+            {
+                foreach (var s in _screenShots)
+                {
+                    var request = await http.GetAsync(s.Url);
+                    var response = await request.Content.ReadAsStreamAsync();
+                    request.EnsureSuccessStatusCode();
+                    await da.DownloadScreenShot(response, s.GameName, s.Filename);
+                    progressBar.Value++;
+                }
+            }
+
+            progressBar.Visibility = Visibility.Hidden;
+            progressBar.Value = 0;
         }
     }
 
