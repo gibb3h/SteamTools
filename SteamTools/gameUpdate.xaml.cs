@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Shell;
 using AngleSharp.Parser.Html;
 using Newtonsoft.Json;
 using SteamTools.Classes;
@@ -25,6 +26,8 @@ namespace SteamTools
         {
             _currentCache = allGames;
             InitializeComponent();
+          
+
             GetLatestGames();
         }
 
@@ -55,6 +58,7 @@ namespace SteamTools
         {
             var uiContext = TaskScheduler.FromCurrentSynchronizationContext();
             var stopTasks = false;
+            taskBarItemInfo.ProgressValue = (double)_currentCache.Count / (double)_allApps.Count;
             GameCacheProgress.Value = _currentCache.Count;
             GameCacheProgress.Maximum = _allApps.Count;
             var i = GameCacheProgress.Value;
@@ -89,6 +93,7 @@ namespace SteamTools
 
             _dataAccess.WriteCachedGames(_currentCache);
 
+            taskBarItemInfo.ProgressState = TaskbarItemProgressState.None;
             var result =
                 MessageBox.Show(
                     _currentCache.Count >= _allApps.Count
@@ -200,6 +205,7 @@ namespace SteamTools
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
+            taskBarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
             Update();
         }
     }

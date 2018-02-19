@@ -9,7 +9,9 @@
         mc:Ignorable="d"
         Title="SteamTools" Height="403.12" Width="566.765"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
-
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo x:Name="taskBarItemInfo" />
+    </Window.TaskbarItemInfo>
     <DockPanel>
 
         <StatusBar DockPanel.Dock="Bottom">
