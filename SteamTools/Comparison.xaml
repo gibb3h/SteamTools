@@ -31,7 +31,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <xctk:CheckComboBox Name="TagsDropDown" HorizontalAlignment="Left" Height="30" Margin="0,0,0,0" VerticalAlignment="Top" Width="450" IsEditable="True"  IsTextSearchEnabled="True" ItemsSource="{Binding AllTags}" ItemSelectionChanged="TagsDropDown_OnItemSelectionChanged">
+        <xctk:CheckComboBox Name="TagsDropDown" HorizontalAlignment="Left" Height="30" TextBoxBase.TextChanged="TagsDropDown_OnTextInput" Margin="0,0,0,0" VerticalAlignment="Top" Width="450" IsEditable="True" IsTextSearchEnabled="True" ItemsSource="{Binding AllTags}" ItemSelectionChanged="TagsDropDown_OnItemSelectionChanged" >
             <xctk:CheckComboBox.ItemTemplate>
                 <DataTemplate>
                     <Grid HorizontalAlignment="Stretch">

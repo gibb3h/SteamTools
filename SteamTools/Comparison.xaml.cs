@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using SteamTools.Annotations;
 using SteamTools.Classes;
 using Xceed.Wpf.Toolkit.Primitives;
@@ -161,6 +162,11 @@ namespace SteamTools
                 ssg.ShowDialog();
             else
                 MessageBox.Show("No screenshots for this game!");
+        }
+
+        private void TagsDropDown_OnTextInput(object sender, TextChangedEventArgs textChangedEventArgs)
+        {
+            TagsDropDown.IsDropDownOpen = true;
         }
     }
 
