@@ -5,13 +5,27 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+using FuzzyString;
 
 namespace SteamTools.Classes
 {
     internal class DataAccess
     {
         private readonly char[] _invalidChars = Path.GetInvalidFileNameChars();
+
+        private List<string> _steamGrids;
+        public List<string> SteamGrids
+        {
+            get
+            {
+                if ((_steamGrids?.Count ?? 0) == 0)
+                    _steamGrids = GetSteamGridDb();
+                return _steamGrids;
+            }
+        }
+
         public List<User> GetCachedUsers(string groupUrl)
         {
             var users = new List<User>();
@@ -22,6 +36,7 @@ namespace SteamTools.Classes
                     using (var sr = new StreamReader(groupUri.Segments[2].Replace("/", "") + ".json"))
                         users = JsonConvert.DeserializeObject<ObservableCollection<User>>(sr.ReadToEnd()).ToList();
             }
+
             return users;
         }
 
@@ -34,6 +49,26 @@ namespace SteamTools.Classes
                 return JsonConvert.DeserializeObject<List<Game>>(sr.ReadToEnd());
         }
 
+        public List<string> GetSteamGridDb()
+        {
+            var grids = new List<string>();
+            if (!File.Exists("SteamGridDb.json"))
+                return grids;
+
+            using (var sr = new StreamReader("SteamGridDb.json"))
+            {
+                var a = sr.ReadToEnd();
+                var b = JsonConvert.DeserializeObject<dynamic>(a);
+                var c = b.games;
+                foreach (var g in c)
+                {
+                    grids.Add((string)g);
+                }
+                return grids;
+            }
+            
+        }
+
         public List<ScreenShot> GetScreenShots(string user)
         {
             var shots = new List<ScreenShot>();
@@ -42,13 +77,15 @@ namespace SteamTools.Classes
                 try
                 {
                     using (var sr = new StreamReader(file.FullName))
-                        shots = JsonConvert.DeserializeObject<ObservableCollection<ScreenShot>>(sr.ReadToEnd()).ToList();
+                        shots = JsonConvert.DeserializeObject<ObservableCollection<ScreenShot>>(sr.ReadToEnd())
+                            .ToList();
                 }
                 catch (Exception e)
                 {
                     Logger.log(e);
                     MessageBox.Show(e.Message);
                 }
+
             return shots;
         }
 
@@ -60,16 +97,17 @@ namespace SteamTools.Classes
                 try
                 {
                     using (var sr = new StreamReader(file.FullName))
-                        shots = JsonConvert.DeserializeObject<ObservableCollection<ScreenShot>>(sr.ReadToEnd()).ToList().Where(s => s.AppId.Equals(appId)).ToList();
+                        shots = JsonConvert.DeserializeObject<ObservableCollection<ScreenShot>>(sr.ReadToEnd()).ToList()
+                            .Where(s => s.AppId.Equals(appId)).ToList();
                 }
                 catch (Exception e)
                 {
                     Logger.log(e);
                     MessageBox.Show(e.Message);
-                }            
-            
+                }
+
             return shots;
-           
+
         }
 
         public async Task<bool> DownloadScreenShot(Stream s, string gamename, string filename)
@@ -123,6 +161,7 @@ namespace SteamTools.Classes
             {
                 Directory.CreateDirectory(Consts.ScreenShotDirectory);
             }
+
             var file = new FileInfo(Consts.ScreenShotDirectory + "/" + user + ".json");
             try
             {
@@ -135,5 +174,7 @@ namespace SteamTools.Classes
                 MessageBox.Show(e.Message);
             }
         }
+
+        
     }
 }

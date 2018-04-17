@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AngleSharp.Dom;
 using AngleSharp.Parser.Html;
+using FuzzyString;
+using Newtonsoft.Json;
+using SteamTools.Properties;
 
 namespace SteamTools.Classes
 {
@@ -14,8 +19,8 @@ namespace SteamTools.Classes
 
         private readonly HtmlParser _parser = new HtmlParser();
         private readonly HttpClient _http = new HttpClient();
-
-        public async Task<List<ScreenShot>> GetScreenShots(string userProfile, List<ScreenShot> cached)
+        private readonly DataAccess da = new DataAccess();
+        public async Task<List<ScreenShot>> GetScreenShots(string userProfile, List<ScreenShot> cached, string steamId)
         {
 
             var results = new List<ScreenShot>();
@@ -38,7 +43,7 @@ namespace SteamTools.Classes
             var downloadTasksQuery =
                 document.QuerySelectorAll(Consts.ElemImgFloat)
                         .ToList().Where(g => !cached.Any(c => c.Filename.Equals(GetFileName(g))))
-                        .Select(img => GetScreenShot(img, user).ContinueWith(t => results.AddRange(t.Result)));
+                        .Select(img => GetScreenShot(img, user, steamId).ContinueWith(t => results.AddRange(t.Result)));
             await Task.WhenAll(downloadTasksQuery);
             if (document.QuerySelectorAll(Consts.ElemPage).Any())
             {
@@ -56,7 +61,7 @@ namespace SteamTools.Classes
                                            .ToList().Where(g => !cached.Any(c => c.Filename.Equals(GetFileName(g))))
                                            .Select(
                                                img =>
-                                               GetScreenShot(img, user).ContinueWith(t => results.AddRange(t.Result)));
+                                               GetScreenShot(img, user, steamId).ContinueWith(t => results.AddRange(t.Result)));
                         await Task.WhenAll(query2);
                     }
                 }
@@ -72,7 +77,7 @@ namespace SteamTools.Classes
                    ".jpg";
         }
 
-        private async Task<List<ScreenShot>> GetScreenShot(IElement img, string user)
+        private async Task<List<ScreenShot>> GetScreenShot(IElement img, string user,string steamId)
         {
             var shots = new List<ScreenShot>();
             try
@@ -86,29 +91,36 @@ namespace SteamTools.Classes
                     var imgUrl = imgDoc.QuerySelector(".actualmediactn a").GetAttribute("href");
 
                     var desc = img.QuerySelector(Consts.ElemImg).QuerySelectorAll(Consts.ElemDesc).Any()
-                                   ? img.QuerySelector(Consts.ElemImg).QuerySelectorAll(Consts.ElemDesc).First().TextContent
-                                   : "";
+                        ? img.QuerySelector(Consts.ElemImg).QuerySelectorAll(Consts.ElemDesc).First().TextContent
+                        : "";
 
-                    var gameName = imgDoc.QuerySelectorAll(Consts.ElemGame).Any()
-                                   ? imgDoc.QuerySelectorAll(Consts.ElemGame).First().TextContent
-                                   : imgDoc.QuerySelectorAll(Consts.ElemGameNonSteam).First().TextContent;
+                    var nonSteam = !imgDoc.QuerySelectorAll(Consts.ElemGame).Any();        
+                    var gameName = !nonSteam
+                        ? imgDoc.QuerySelectorAll(Consts.ElemGame).First().TextContent
+                        : imgDoc.QuerySelectorAll(Consts.ElemGameNonSteam).Last().TextContent;
+
                     var appid = 0;
+
                     if (imgDoc.QuerySelectorAll(Consts.ElemGame).Any())
                     {
                         appid =
                             int.Parse(
-                                new Uri(imgDoc.QuerySelectorAll(Consts.ElemGame).First().GetAttribute("href")).Segments[2].Replace("/", ""));
+                                new Uri(imgDoc.QuerySelectorAll(Consts.ElemGame).First().GetAttribute("href"))
+                                    .Segments[2].Replace("/", ""));
                     }
+
+                    if (nonSteam)
+                        appid = GetNonSteamGame(gameName, steamId);
                     var ss = new ScreenShot
-                        {
-                            AppId = appid,
-                            Description = desc,
-                            Filename = GetFileName(img),
-                            Link = imgPage,
-                            Url = imgUrl,
-                            User = user,
-                            GameName = gameName
-                        };
+                    {
+                        AppId = appid,
+                        Description = desc,
+                        Filename = GetFileName(img),
+                        Link = imgPage,
+                        Url = imgUrl,
+                        User = user,
+                        GameName = gameName
+                    };
                     shots.Add(ss);
                 }
             }
@@ -117,6 +129,82 @@ namespace SteamTools.Classes
                 var dbg = "";
             }
             return shots;
+        }
+
+        private int GetNonSteamGame(string gameName, string steamId)
+        {
+            int fakeAppId;
+            var allGames = da.GetCachedGames();
+            var usrs = da.GetCachedUsers(Settings.Default.groupUrl);
+            var usr = usrs.FirstOrDefault(u => u.SteamId.Equals(steamId));
+
+            if (allGames.Any(g => g.Name.Equals(gameName)))
+            {
+                var existingId = allGames.FirstOrDefault(g => g.Name.Equals(gameName))?.AppId ?? 0;
+                if (usr?.Games?.Contains(existingId) != true)
+                {
+                    usr?.Games?.Add(existingId);
+                    da.WriteCachedUsers(Settings.Default.groupUrl, usrs);
+                }
+
+                return existingId;
+            }
+
+            if (allGames.Select(g => g.AppId).Min() > -1)
+                fakeAppId = - 1;
+            else           
+                fakeAppId = allGames.Select(g => g.AppId).Min() - 1;
+
+            allGames.Add(new Game
+            {
+                AppId = fakeAppId,
+                ExistsInStore = false,
+                Logo = FindGameLogoAsync(gameName).Result,
+                Name = gameName
+            });
+            da.WriteCachedGames(allGames);
+            if (usr?.Games?.Contains(fakeAppId) != true)
+            {
+                usr?.Games?.Add(fakeAppId);
+                da.WriteCachedUsers(Settings.Default.groupUrl, usrs);
+            }
+            return fakeAppId;
+        }
+
+        private async Task<string> FindGameLogoAsync(string name)
+        {
+
+            var nme = da.SteamGrids.FirstOrDefault(a => a.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (string.IsNullOrEmpty(nme))
+                nme = da.SteamGrids.FirstOrDefault(a => a.ApproximatelyEquals(name,
+                    new List<FuzzyStringComparisonOptions>
+                    {
+                        FuzzyStringComparisonOptions.UseOverlapCoefficient,
+                        FuzzyStringComparisonOptions.UseLongestCommonSubsequence,
+                        FuzzyStringComparisonOptions.UseLongestCommonSubstring
+                    }, FuzzyStringComparisonTolerance.Strong));
+            if (string.IsNullOrEmpty(nme))
+                return "";
+            try
+            {
+                var steamGridApiUrl = $"http://www.steamgriddb.com/api/grids?game={nme}";
+                using (var request =
+                    await _http.GetAsync(steamGridApiUrl).ConfigureAwait(continueOnCapturedContext: false))
+                using (var response = await request.Content.ReadAsStreamAsync())
+                {
+                    request.EnsureSuccessStatusCode();
+                    using (var sr = new StreamReader(response))
+                        return JsonConvert.DeserializeObject<dynamic>(sr.ReadToEnd()).data[0].grid_url;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.log(ex);
+                //   MessageBox.Show(ex.Message);
+            }
+
+            return "";
+
         }
     }
 }

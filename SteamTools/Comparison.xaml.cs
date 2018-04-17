@@ -71,7 +71,7 @@ namespace SteamTools
 
                     return g2Count.CompareTo(g1Count);
                 });
-
+            
             foreach (var id in userGames)
             {
                 var gameUsers = allUsers.Where(u => u.Games.Any(g => g.Equals(id.AppId))).ToList();

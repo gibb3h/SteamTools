@@ -180,7 +180,7 @@ namespace SteamTools
                         _dataAccess.WriteScreenShots(u.SteamId,
                             await
                                 screenshotScraper.GetScreenShots(u.ProfileUrl,
-                                    _dataAccess.GetScreenShots(u.SteamId)));
+                                    _dataAccess.GetScreenShots(u.SteamId),u.SteamId));
                         Progress.Value++;
                         taskBarItemInfo.ProgressValue = Progress.Value / Progress.Maximum;
                         ShowStats();

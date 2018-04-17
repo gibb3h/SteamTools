@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -8,6 +9,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shell;
 using AngleSharp.Parser.Html;
+using FuzzyString;
 using Newtonsoft.Json;
 using SteamTools.Classes;
 
@@ -26,7 +28,6 @@ namespace SteamTools
         {
             _currentCache = allGames;
             InitializeComponent();
-          
 
             GetLatestGames();
         }
@@ -146,6 +147,8 @@ namespace SteamTools
                             if (!document.QuerySelectorAll("#error_box").Any())
                             {
                                 newGame.Logo = document.QuerySelector(".game_header_image_full").GetAttribute("src");
+                                if (string.IsNullOrEmpty(newGame.Logo))
+                                    newGame.Logo = await GetLogo(newGame.Name);
                                 newGame.ExistsInStore = true;
                                 tags.AddRange(
                                     document.QuerySelectorAll(".app_tag")
@@ -178,6 +181,38 @@ namespace SteamTools
             newGame.Tags = tags;
            
             return newGame;
+        }
+
+        private async Task<string> GetLogo(string name)
+        {
+
+            var nme = _dataAccess.SteamGrids.Where(a => a.ApproximatelyEquals(name,
+                new List<FuzzyStringComparisonOptions>()
+                {
+                    FuzzyStringComparisonOptions.UseOverlapCoefficient,
+                    FuzzyStringComparisonOptions.UseLongestCommonSubsequence,
+                    FuzzyStringComparisonOptions.UseLongestCommonSubstring
+                }, FuzzyStringComparisonTolerance.Strong));
+            try
+            {
+                using (var http = new HttpClient())
+                {
+                    var request = await http.GetAsync($"http://www.steamgriddb.com/api/grids?game={nme.First()}");
+                    var response = await request.Content.ReadAsStreamAsync();
+                    request.EnsureSuccessStatusCode();
+                    using (var sr = new StreamReader(response))
+                        return JsonConvert.DeserializeObject<dynamic>(sr.ReadToEnd()).data[0].grid_url;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.log(ex);
+                //   MessageBox.Show(ex.Message);
+            }
+
+            return "";
+
+
         }
 
         public bool UpdatesAvailable()
