@@ -152,6 +152,7 @@
     <Compile Include="changeLog.xaml.cs">
       <DependentUpon>changeLog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Classes\globalVars.cs" />
     <Compile Include="Classes\Logger.cs" />
     <Compile Include="Comparison.xaml.cs">
       <DependentUpon>Comparison.xaml</DependentUpon>

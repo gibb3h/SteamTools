@@ -134,39 +134,37 @@ namespace SteamTools.Classes
         private int GetNonSteamGame(string gameName, string steamId)
         {
             int fakeAppId;
-            var allGames = da.GetCachedGames();
-            var usrs = da.GetCachedUsers(Settings.Default.groupUrl);
-            var usr = usrs.FirstOrDefault(u => u.SteamId.Equals(steamId));
+           
+            var usr = globalVars.Users.FirstOrDefault(u => u.SteamId.Equals(steamId));
 
-            if (allGames.Any(g => g.Name.Equals(gameName)))
+            if (globalVars.AllGames.Any(g => g.Name.Equals(gameName)))
             {
-                var existingId = allGames.FirstOrDefault(g => g.Name.Equals(gameName))?.AppId ?? 0;
+                var existingId = globalVars.AllGames.FirstOrDefault(g => g.Name.Equals(gameName))?.AppId ?? 0;
                 if (usr?.Games?.Contains(existingId) != true)
                 {
-                    usr?.Games?.Add(existingId);
-                    da.WriteCachedUsers(Settings.Default.groupUrl, usrs);
+                    globalVars.Users.FirstOrDefault(u => u.SteamId.Equals(steamId))?.Games.Add(existingId);
                 }
 
                 return existingId;
             }
 
-            if (allGames.Select(g => g.AppId).Min() > -1)
+            if (globalVars.AllGames.Select(g => g.AppId).Min() > -1)
                 fakeAppId = - 1;
             else           
-                fakeAppId = allGames.Select(g => g.AppId).Min() - 1;
+                fakeAppId = globalVars.AllGames.Select(g => g.AppId).Min() - 1;
 
-            allGames.Add(new Game
+            globalVars.AllGames.Add(new Game
             {
                 AppId = fakeAppId,
                 ExistsInStore = false,
                 Logo = FindGameLogoAsync(gameName).Result,
                 Name = gameName
             });
-            da.WriteCachedGames(allGames);
+           
             if (usr?.Games?.Contains(fakeAppId) != true)
             {
-                usr?.Games?.Add(fakeAppId);
-                da.WriteCachedUsers(Settings.Default.groupUrl, usrs);
+                globalVars.Users.FirstOrDefault(u => u.SteamId.Equals(steamId))?.Games.Add(fakeAppId);
+              //  da.WriteCachedUsers(Settings.Default.groupUrl, usrs);
             }
             return fakeAppId;
         }

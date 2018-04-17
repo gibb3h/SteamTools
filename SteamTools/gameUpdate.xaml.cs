@@ -51,6 +51,7 @@ namespace SteamTools
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
+            globalVars.AllGames = _currentCache;
             _dataAccess.WriteCachedGames(_currentCache);
             base.OnClosing(e);
         }
@@ -217,7 +218,7 @@ namespace SteamTools
 
         public bool UpdatesAvailable()
         {
-            return _allApps.Count > _currentCache.Count;
+            return _allApps.Count(g => g.appid > -1) > _currentCache.Count;
         }
 
         internal class apiGame

@@ -25,8 +25,8 @@ namespace SteamTools
     public partial class MainWindow
     {
 
-        public List<User> Users { get; set; }
-        private List<Game> AllGames { get; set; }
+        //public List<User> Users { get; set; }
+        //private List<Game> AllGames { get; set; }
 
         private readonly DataAccess _dataAccess = new DataAccess();
         private static readonly string InstalledDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -61,20 +61,20 @@ namespace SteamTools
         public void ShowStats()
         {
             var allGames = GetUserGameIds();
-            PlayerStats.Content = string.Format("{0} Users ({1} of which have private profiles)", Users.Count,
-                Users.Count(u => u.PrivateProfile.Equals(true)));
+            PlayerStats.Content = string.Format("{0} Users ({1} of which have private profiles)", globalVars.Users.Count,
+                globalVars.Users.Count(u => u.PrivateProfile.Equals(true)));
             GameStats.Content = string.Format("{0} Games ({1} of which are no longer on the Steam Store)",
-                allGames.Count(), AllGames.Count(g => g.ExistsInStore.Equals(false) && allGames.Contains(g.AppId)));
+                allGames.Count(), globalVars.AllGames.Count(g => g.ExistsInStore.Equals(false) && allGames.Contains(g.AppId)));
             TagsStats.Content = string.Format("{0} unique tags",
-                AllGames.Where(g => allGames.Contains(g.AppId)).SelectMany(g => g.Tags).Distinct().Count());
+                globalVars.AllGames.Where(g => allGames.Contains(g.AppId)).SelectMany(g => g.Tags).Distinct().Count());
             ScreenStats.Content = string.Format("{0} Screenshots",
-                Users.Sum(u => _dataAccess.GetScreenShots(u.SteamId).Count));
+                globalVars.Users.Sum(u => _dataAccess.GetScreenShots(u.SteamId).Count));
         }
 
         private List<int> GetUserGameIds()
         {
-            var allGameIds = AllGames.Select(f => f.AppId).Distinct().ToList();
-            var userGameIds = Users.SelectMany(u => u.Games).Distinct().ToList();
+            var allGameIds = globalVars.AllGames.Select(f => f.AppId).Distinct().ToList();
+            var userGameIds = globalVars.Users.SelectMany(u => u.Games).Distinct().ToList();
             allGameIds = allGameIds.Where(userGameIds.Contains).ToList();
             allGameIds.Sort();
             return allGameIds;
@@ -82,16 +82,16 @@ namespace SteamTools
 
         private void GetData()
         {
-            Users = _dataAccess.GetCachedUsers(Settings.Default.groupUrl);
+            globalVars.Users = _dataAccess.GetCachedUsers(Settings.Default.groupUrl);
             var dbg = _dataAccess.GetCachedGames();
-            AllGames = dbg.GroupBy(x => x.AppId).Select(y => y.First()).ToList();
+            globalVars.AllGames = dbg.GroupBy(x => x.AppId).Select(y => y.First()).ToList();
             ShowStats();
             Button.IsEnabled = true;
         }
 
         private void WriteData()
         {
-            _dataAccess.WriteCachedUsers(GroupUrl.Text, Users);
+            _dataAccess.WriteCachedUsers(GroupUrl.Text, globalVars.Users);
         }
 
         public List<int> GetGames(Stream response)
@@ -174,7 +174,7 @@ namespace SteamTools
                     var screenshotScraper = new ScreenshotScraper();
                     Progress.Maximum = users.Count;
                     Progress.Value = 0;
-                    foreach (var u in Users)
+                    foreach (var u in globalVars.Users)
                     {
                         Label.Content = "Getting Screenshots for " + u.Name;
                         _dataAccess.WriteScreenShots(u.SteamId,
@@ -215,14 +215,14 @@ namespace SteamTools
                 from usr in users
                 select GetUsers(usr).ContinueWith(t =>
                 {
-                    if (!Users.Any(u => u.SteamId.Equals(t.Result.SteamId)))
+                    if (!globalVars.Users.Any(u => u.SteamId.Equals(t.Result.SteamId)))
                     {
-                        Users.Add(t.Result);
+                        globalVars.Users.Add(t.Result);
                         Dispatcher.Invoke(ShowStats);
                     }
                     else
                     {
-                        foreach (var user in Users.Where(u => u.SteamId.Equals(t.Result.SteamId)))
+                        foreach (var user in globalVars.Users.Where(u => u.SteamId.Equals(t.Result.SteamId)))
                         {
                             user.Games = t.Result.Games;
                             user.PrivateProfile = t.Result.PrivateProfile;
@@ -234,7 +234,7 @@ namespace SteamTools
 
         public async Task<User> GetUsers(IElement usr)
         {
-            var user = Users.Where(u => u.Name.Equals(usr.QuerySelector(".linkFriend").TextContent))
+            var user = globalVars.Users.Where(u => u.Name.Equals(usr.QuerySelector(".linkFriend").TextContent))
                 .DefaultIfEmpty(new User()).First();
             user.Name = usr.QuerySelector(".linkFriend").TextContent;
             user.Logo = usr.QuerySelector(".playerAvatar a img").GetAttribute("src").Replace(".jpg", "_full.jpg");
@@ -306,7 +306,7 @@ namespace SteamTools
 
         private void processGameComp_Click(object sender, RoutedEventArgs e)
         {
-            var comp = new Comparison(AllGames, Users) {WindowStartupLocation = WindowStartupLocation.CenterScreen};
+            var comp = new Comparison(globalVars.AllGames, globalVars.Users) {WindowStartupLocation = WindowStartupLocation.CenterScreen};
             comp.SourceInitialized += (s, a) => comp.WindowState = WindowState.Maximized;
             comp.Show();
         }
@@ -324,12 +324,12 @@ namespace SteamTools
 
         private void RefreshGameCache_Click(object sender, RoutedEventArgs e)
         {
-            new GameUpdate(AllGames).ShowDialog();
+            new GameUpdate(globalVars.AllGames).ShowDialog();
         }
 
         private void CheckForUpdates()
         {
-            var gameUpdate = new GameUpdate(AllGames);
+            var gameUpdate = new GameUpdate(globalVars.AllGames);
             if (gameUpdate.UpdatesAvailable())
             {
                 MessageBox.Show("There are new games on Steam, please update your cache");
